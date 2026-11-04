@@ -8,6 +8,47 @@ An AI-agent workflow, built on Claude Code skills, that finds visa-friendly entr
 
 This repo holds the skills and the harness. The Gmail side lives in its own repo, [email_fetcher](https://github.com/Ari-Da/email_fetcher).
 
+## Demo
+
+<!-- DEMO VIDEO: on github.com, edit this file and drag the .mp4 onto this line -->
+
+*All names, companies and numbers below are sample data.*
+
+<table>
+<tr>
+<td width="50%" valign="top">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-1-job-search.png">
+  <img src="docs/images/light-1-job-search.png" alt="job-search: Claude Code finds new jobs and adds them to the tracker">
+</picture>
+<p align="center"><b>1. Find</b>: every posting checked on the company's own site</p>
+</td>
+<td width="50%" valign="top">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-2-apply.png">
+  <img src="docs/images/light-2-apply.png" alt="apply: the agent fills the application form and stops before Submit">
+</picture>
+<p align="center"><b>2. Apply</b>: the agent fills the form, a person clicks Submit</p>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-3-history.png">
+  <img src="docs/images/light-3-history.png" alt="Application History page with stats and every application">
+</picture>
+<p align="center"><b>3. Track</b>: replies read from email, merged, never deleted</p>
+</td>
+<td width="50%" valign="top">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-4-outreach.png">
+  <img src="docs/images/light-4-outreach.png" alt="Recruiter Outreach page with reply rate">
+</picture>
+<p align="center"><b>4. Outreach</b>: recruiter emails and who wrote back</p>
+</td>
+</tr>
+</table>
+
 ## How it fits together
 
 ```mermaid
