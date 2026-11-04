@@ -1,4 +1,8 @@
-# job-search-agent
+# Hayhire
+
+**Finds the needle in the job haystack, and leaves Submit to you.**
+
+*A Claude Code agent harness: job search → apply → email tracking.*
 
 An AI-agent workflow, built on Claude Code skills, that finds visa-friendly entry-level jobs, verifies each one is open on the company's own site, fills applications for human review, and tracks every response from Gmail. A small **harness** connects the steps end to end, and the agent never submits anything: a person reviews every application and clicks Submit.
 
@@ -66,7 +70,7 @@ More in [docs/design-decisions.md](docs/design-decisions.md).
 
 ```bash
 mkdir job-agent && cd job-agent
-git clone https://github.com/Ari-Da/job-search-agent.git public
+git clone https://github.com/Ari-Da/hayhire-agent.git public
 git clone https://github.com/Ari-Da/email_fetcher.git      # optional: email tracking
 ./public/install.sh
 ```
