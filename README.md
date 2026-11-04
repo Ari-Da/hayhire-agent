@@ -1,4 +1,4 @@
-# Hayhire
+# HayHire
 
 **Finds the needle in the job haystack, and leaves Submit to you.**
 
