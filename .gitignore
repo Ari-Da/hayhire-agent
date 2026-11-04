@@ -1,0 +1,11 @@
+# Personal files live in ../private, outside this repo. These names are
+# blocked here too, in case one is copied in by mistake.
+private/
+config.json
+profile.md
+browsers.json
+facts.json
+blocklist.txt
+*.pdf
+.DS_Store
+__pycache__/

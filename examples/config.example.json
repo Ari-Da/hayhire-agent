@@ -1,0 +1,13 @@
+{
+  "PRIVATE_DIR": "~/job-agent/private",
+  "SKILLS_DIR": "~/job-agent/public/skills",
+  "JOBS_DIR": "~/job-agent/private/jobs",
+  "EMAIL_FETCHER_DIR": "~/job-agent/email_fetcher",
+  "TRACKER_URL": "https://claude.ai/artifact/<your-tracker-id>",
+  "TRACKER_NAME": "My Jobs",
+  "BROWSER_NAME": "My-Mac",
+  "HARNESS_START_DATE": "2026-01-01",
+  "GRAD_DATE": "May 2028",
+  "ALT_GRAD_DATE": "",
+  "INTERN_YEAR": "2028"
+}

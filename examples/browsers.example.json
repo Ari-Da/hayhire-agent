@@ -1,0 +1,7 @@
+{
+  "local": {
+    "name": "<BROWSER_NAME>",
+    "deviceId": "<DEVICE_ID>"
+  },
+  "other": []
+}

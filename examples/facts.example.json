@@ -1,0 +1,16 @@
+{
+  "name": "Alex Rivera",
+  "header": {
+    "email": "alex.rivera@example.com",
+    "phone": "+1 555 010 0100",
+    "website": "example.com",
+    "linkedin": "/in/example/",
+    "location": "New York, USA"
+  },
+  "intro": "I am writing to express my interest in the {{SHORT_TITLE}} role at {{COMPANY}}. With three years of software engineering experience and graduate studies in computer science, I am excited about the commitment {{COMPANY}} has toward {{MISSION}}.",
+  "experience": "In my engineering roles at Example Corp and Sample Labs, I built and maintained production web systems, wrote tests, and improved build times.",
+  "closing": [
+    "I would love the opportunity to discuss how my experience could contribute to your team.",
+    "Thank you for your time and consideration."
+  ]
+}

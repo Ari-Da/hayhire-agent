@@ -1,0 +1,41 @@
+Company,Category,Priority_Tier,Careers_Site,Notes
+Google,Big Tech,0,https://careers.google.com,Top H-1B filer in multiple 2026 rankings; commonly sponsors CPT/OPT interns and new grads (user-marked top priority; check every run)
+Amazon (incl. AWS),Big Tech,0,https://www.amazon.jobs,Largest H-1B filer by volume; many SDE I / new-grad roles (user-marked top priority; check every run)
+Microsoft,Big Tech,0,https://careers.microsoft.com,Top-3 filer; sponsors interns and new grads (user-marked top priority; check every run)
+Apple,Big Tech,0,https://jobs.apple.com,Large filer across software/ML/silicon (user-marked top priority; check every run)
+Meta,Big Tech,0,https://www.metacareers.com,Large filer but skews senior; new-grad sponsorship less certain - check posting (user-marked top priority; check every run)
+OpenAI,AI Lab,0,https://openai.com/careers,Reported sponsor among AI labs; new-grad roles are rare; verify per posting (user-marked top priority; check every run)
+Anthropic,AI Lab,0,https://www.anthropic.com/careers,Reported sponsor among AI labs; verify per posting (user-marked top priority; check every run)
+NVIDIA,Big Tech / AI,1,https://www.nvidia.com/en-us/about-nvidia/careers/,Large filer; strong AI/ML new-grad hiring
+Oracle,Enterprise Software,1,https://careers.oracle.com,Large filer; many entry-level SWE roles
+Cisco,Enterprise Software,1,https://jobs.cisco.com,Large filer; university grad program
+Salesforce,Enterprise Software,1,https://careers.salesforce.com,Regular filer; new-grad SWE/AI roles
+Adobe,Software,1,https://careers.adobe.com,Regular filer; university grad roles
+Intuit,Software,1,https://www.intuit.com/careers/,Regular filer; new-grad SWE and ML
+LinkedIn,Social / Microsoft,1,https://careers.linkedin.com,Regular filer; new-grad SWE
+Uber,Tech,1,https://www.uber.com/us/en/careers/,Regular filer
+PayPal,Fintech,1,https://paypal.eightfold.ai,Regular filer
+Walmart Global Tech,Retail Tech,1,https://careers.walmart.com,Large filer; many SWE/ML roles in Bentonville and Sunnyvale
+JPMorgan Chase,Finance,1,https://careers.jpmorgan.com,Large filer; SWE new-grad program
+Goldman Sachs,Finance,1,https://www.goldmansachs.com/careers/,Large filer; engineering analyst roles
+Capital One,Finance,1,https://www.capitalonecareers.com,Regular filer; technology development program
+Intel,Semiconductor,2,https://jobs.intel.com,Large filer; verify software roles are still hiring
+Qualcomm,Semiconductor,2,https://www.qualcomm.com/company/careers,Large filer
+eBay,Tech,2,https://careers.ebayinc.com,Regular filer
+Tesla,Auto / AI,2,https://www.tesla.com/careers,Regular filer
+Databricks,AI / Data,2,https://www.databricks.com/company/careers,Reported H-1B sponsor among AI/data companies; verify per posting
+Citi,Finance,2,https://jobs.citi.com,Regular filer
+Bank of America,Finance,2,https://careers.bankofamerica.com,Regular filer
+Fidelity Investments,Finance,2,https://jobs.fidelity.com,Regular filer
+Morgan Stanley,Finance,2,https://www.morganstanley.com/careers,Reported to sponsor international analysts
+Deloitte,Consulting,2,https://www2.deloitte.com/us/en/careers.html,Large filer; check whether tech/AI roles are open to sponsorship
+EY,Consulting,2,https://www.ey.com/en_us/careers,Large filer
+PwC,Consulting,2,https://www.pwc.com/us/en/careers.html,Large filer
+Accenture,Consulting / IT,2,https://www.accenture.com/us-en/careers,Large filer; entry-level friendly
+Scale AI,AI,3,https://scale.com/careers,Reported sponsor; verify per posting
+KPMG,Consulting,3,https://www.kpmguscareers.com,Regular filer
+Cognizant,IT Services,3,https://careers.cognizant.com,Entry-level and OPT-to-H-1B friendly per 2026 rankings; lower pay/brand
+Infosys,IT Services,3,https://www.infosys.com/careers/,Entry-level and OPT-to-H-1B friendly per 2026 rankings
+TCS,IT Services,3,https://www.tcs.com/careers,Entry-level and OPT-to-H-1B friendly per 2026 rankings
+IBM,Enterprise Software,3,https://careers.ibm.com,"Large filer, BUT many early-career/co-op postings say no sponsorship now or in the future (e.g. job 134091) - always read the posting"
+Verkada,Tech / AI security,2,https://www.verkada.com/careers/,"Posting for Backend SWE University Graduate 2027 (Nov 2026) says: we do sponsor and take over sponsorship of employment visas for this role"

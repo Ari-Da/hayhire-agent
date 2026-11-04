@@ -1,0 +1,20 @@
+{
+  "jobs": [
+    {"id": "r1104-01-acme", "run": "11_04", "order": 1, "title": "Software Engineer, New Grad", "type": "Full-Time Entry Level",
+     "company": "Acme (Tier 1)", "location": "New York, NY", "posted": "2026-10-30", "url": "https://example.com/jobs/1",
+     "sponsorship": "Offers sponsorship", "status": "Open (verified)", "gradReq": "N/A", "verified": "Yes",
+     "source": "Company careers page", "notes": "", "jobId": "A-100", "applied": true, "appliedAt": "2026-11-04"},
+    {"id": "r1104-02-globex", "run": "11_04", "order": 2, "title": "Machine Learning Engineer I", "type": "Full-Time Entry Level",
+     "company": "Globex", "location": "Remote, US", "posted": "2026-11-01", "url": "https://example.com/jobs/2",
+     "sponsorship": "Unknown", "status": "Open (verified)", "gradReq": "N/A", "verified": "Yes",
+     "source": "Greenhouse API", "notes": "", "jobId": "G-200", "applied": false, "appliedAt": null}
+  ],
+  "email_applications": [
+    {"id": "skill-r1104-01-acme", "company": "Acme", "role": "Software Engineer, New Grad", "appliedDate": "2026-11-04",
+     "type": "full-time", "status": "applied", "lastUpdate": "2026-11-04", "sourceAccount": null, "emailUrl": null,
+     "needsReview": false, "reviewReason": null, "origin": "skill", "jobsId": "r1104-01-acme"},
+    {"id": "app-0000000001", "company": "Initech", "role": "Data Engineer", "appliedDate": "2026-09-20",
+     "type": "full-time", "status": "rejected", "lastUpdate": "2026-10-02", "sourceAccount": "you@example.com",
+     "emailUrl": null, "needsReview": false, "reviewReason": null, "origin": "email", "jobsId": null}
+  ]
+}
