@@ -25,6 +25,7 @@ Rules: never access Gmail directly; only the scripts read it, read-only. Only wr
 6. Apply each batch in `data/sync/plan.json` with ArtifactData `batch`, using its entries as `writes`. If a batch is refused because a row changed on the page, stop: the local copy is out of date. Tell the user, and with their approval refresh it by reading the page's rows into the conversation (`list` without `out_dir`) and rewriting `data/sync/mirror/email_applications`, one JSON file per row with only the row's fields, and its version in `data/sync/versions.json`.
 7. Run `venv/bin/python sync_prepare.py --applied`, which records the new versions and updates the local copy, then run step 4 again. The result must be 0 writes.
 8. Report the totals: applications, rejected, no response, still waiting, needs review.
+9. Run the `apply` skill's pending check ("Was it submitted?"). New confirmation emails can show that a filled form was submitted; that check, not this skill, marks the job applied.
 
 ## Recruiter outreach (`recruiter_outreach`)
 

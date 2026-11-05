@@ -3,8 +3,8 @@
 The harness is the `job-pipeline` skill plus the email fetcher's sync. It turns four separate tools into one flow:
 
 1. **Find:** `job-search` adds verified jobs to the tracker, skipping anything seen before, anything already applied to, companies with an interview under way, and roles that rejected the person in the last 90 days.
-2. **Apply:** `apply` fills the form in the person's own Chrome, attaches the right resume, writes a cover letter only when the form asks for one, drafts essays for review, and saves a PDF record. It stops before Submit.
-3. **Record:** on "submitted", `apply` marks the job applied and adds a history row straight away, so the stats update immediately.
+2. **Apply:** `apply` fills the form in the browser the person chose at setup (their own Chrome with Claude in Chrome, or the Claude app's built-in browser), attaches the right resume (with the built-in browser, the person uploads it), writes a cover letter only when the form asks for one, drafts essays for review, and saves a PDF record. It stops before Submit.
+3. **Record:** on "submitted", `apply` marks the job applied and adds a history row straight away, so the stats update immediately. If the person forgets, `apply` keeps a short waiting list and checks it on the next command (is the tab showing a confirmation page?) and after each email sync (did a confirmation email arrive?).
 4. **Reconcile:** "update history" runs the email tracker and merges what Gmail shows into the history: confirmation links, rejections, assessments and interviews. Applications made outside the tool are added too.
 
 ## What runs, and when

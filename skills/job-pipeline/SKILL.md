@@ -26,12 +26,13 @@ The pipeline connects four skills. Each keeps its own job; this skill decides wh
 - **"pipeline status":** read `jobs` and `email_applications` and report: jobs found in the latest run, jobs not yet applied to, applications submitted in the last 7 days, skill rows still waiting for a confirmation email, and the history totals.
 - **"next":** suggest the next step from the status (for example, unapplied jobs from the latest run, or "update history" if it has not run today).
 - **"update history":** follow `sync-applications`.
+- **Before every command:** run the `apply` skill's pending check ("Was it submitted?"), so jobs the user submitted without saying so are logged.
 - **After "submitted":** the `apply` skill adds the history row at once. Do not run the email sync automatically; the confirmation email usually arrives later. Offer "update history" when they are done applying for the day.
 - **Catch-up:** if a `jobs` row has `applied: true`, an `appliedAt` on or after <HARNESS_START_DATE>, and no `skill-<jobs id>` row in `email_applications`, they ticked it on the page. Offer to add the history row as in the `apply` skill's "submitted" step 3. Never do this for earlier ticks: the email backfill already counts those.
 
 ## Rules
 
-- One writer per collection: `job-search` adds `jobs` rows, `apply` sets `applied` / `appliedAt` and adds `skill-...` history rows, the email sync merges into `email_applications`, and nothing deletes history rows except the user by hand.
+- One writer per collection: `job-search` adds `jobs` rows, `apply` sets `applied` / `appliedAt` (on "submitted", or from its pending check) and adds `skill-...` history rows, the email sync merges into `email_applications`, and nothing deletes history rows except the user by hand.
 - Who can read the tracker's data is the user's choice, `<TRACKER_SHARING>` in the config (default `private`). Never change it on your own, and never stop because the page is shared. If the page's access rules do not match the setting, say so once and offer to fix the rules (see the `job-agent-setup` skill).
 - The user submits every application themselves. Never click Submit.
 - Scheduling is paused (user decision). Run steps only when asked.

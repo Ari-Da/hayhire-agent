@@ -90,7 +90,7 @@ Gmail is only ever read. The tracker page is a Claude artifact, private by defau
 | 1. Find jobs | `job-search` | "run a job for 15" | new `jobs` rows |
 | 2. Fill an application | `apply` | "apply to 1104-02" | nothing |
 | 3. Submit | the person, by hand | clicks Submit | |
-| 4. Record it | `apply` | "submitted" | `applied` on the job, a history row |
+| 4. Record it | `apply` | "submitted", or found by itself on the next command (confirmation page) or after "update history" (confirmation email) | `applied` on the job, a history row |
 | 5. Confirm from email | `sync-applications` | "update history" | history rows (merge, never delete) |
 | 6. Recruiter stats | `sync-applications` | "update outreach" | outreach rows |
 
@@ -100,6 +100,7 @@ It also answers "pipeline status" and "next". See [harness/README.md](harness/RE
 
 - **Human in the loop.** The agent never clicks Submit, never accepts terms or consent boxes, never creates accounts and never types passwords. LinkedIn and Handshake are read-only.
 - **Verified, not scraped.** Every job is confirmed open on the company's own careers site or ATS (Greenhouse, Ashby, Workday APIs), deduplicated across runs, and filtered by sponsorship and graduation-date rules.
+- **Submissions are caught three ways.** Saying "submitted" (or ticking the job on the page) logs it at once. If the person says nothing, the next command checks the application's tab for a confirmation page, and "update history" checks for a confirmation email. A job is only marked applied on a clear sign, never a guess.
 - **One writer per collection.** Job search adds jobs, the apply skill marks them and logs submissions, and the email sync only merges into the history. Nothing deletes history rows except the person, by hand.
 - **Merge-only sync.** Confirmation emails are matched to logged submissions by company (subsidiaries included), role and date. Unclear matches go to a needs-review list instead of being guessed, and a status only ever moves forward.
 - **Privacy first.** Gmail access is read-only and the scope is checked on every token. Recruiter emails are classified by a small local model (Ollama, `llama3.2:3b`), so email text never leaves the machine.
@@ -117,15 +118,22 @@ git clone https://github.com/Ari-Da/email_fetcher.git      # optional: email tra
 
 Then open Claude Code and say **"set up job agent"** to answer the [setup questionnaire](#setup-questionnaire).
 
-**Optional: automatic form filling.** Install [Claude in Chrome](https://claude.com/chrome) to let the `apply` skill fill applications automatically. Every form still stops before Submit for review.
+**Choose a browser for applying.** Setup asks which browser the `apply` skill should fill forms in. It first checks whether Claude in Chrome is already connected, and only offers what works on your computer. Every form still stops before Submit for review.
+
+| Browser | Needs | Resume and cover letter | Good for |
+|---|---|---|---|
+| **Your own Chrome** (`chrome`) | the [Claude in Chrome](https://claude.com/chrome) extension, connected to your Claude account. Edge and other Chromium browsers may work through Claude Code, but only Chrome is officially supported | uploaded by the agent | the most hands-off option; uses your existing sign-ins |
+| **The Claude app's built-in browser** (`built-in`) | the Claude desktop app, nothing to install | **you upload them**: the agent prepares the files and tells you which goes where | no extension; fills everything else |
+
+**Firefox or Safari?** There is no Claude extension for them, so choose the built-in browser. Change it any time by saying "set up job agent". On each platform:
 
 | Platform | What `apply` does |
 |---|---|
-| Greenhouse, Ashby, Lever | Fills the whole form, no sign-in needed |
-| Workday, iCIMS, Oracle, SuccessFactors and other portals with accounts | Needs a manual sign-in (or new account) first; after the tab is handed over, it fills the rest |
+| Greenhouse, Ashby, Lever | Fills the whole form, no sign-in needed (with the built-in browser, you add the files) |
+| Workday, iCIMS, Oracle, SuccessFactors and other portals with accounts | Needs a manual sign-in (or new account) first, in that same browser; then it fills the rest |
 | LinkedIn, Handshake | Read-only: used to find jobs, never to apply (no Easy Apply) |
 
-Consent boxes, CAPTCHAs and passwords are always done by hand. Without Claude in Chrome, the search, cover letters and email tracking still work.
+Consent boxes, CAPTCHAs and passwords are always done by hand. With neither browser (for example Claude Code in a plain terminal), automatic applying does not work, and setup says so. Everything else still works: job search, cover letters, the tracker and email tracking, and "submitted" still logs applications made by hand.
 
 The tracker page is a Claude artifact; setup asks for its link and who may see it (see [Sharing the tracker](#sharing-the-tracker)).
 
@@ -159,7 +167,7 @@ Sample questions:
 | 📍 Location | Which cities, in order? Remote, hybrid or on-site? | `notes/job-search.md` |
 | 🏢 Companies | Which companies should be checked on every run? Any to skip? | `notes/job-search.md` |
 | ✉️ Cover letter *(optional)* | Skip it if no cover letters are wanted. Otherwise: formal, warm or concise? The opening line and experience paragraph? Products genuinely used, for a true personal tie? | `cover-letter/facts.json` |
-| ⚙️ Setup | The tracker page link, and who may see it? Which Chrome is this computer's? Words that must never be published? | `config.json`, `browsers.json`, `blocklist.txt` |
+| ⚙️ Setup | The tracker page link, and who may see it? Apply in your own Chrome (with the extension) or the built-in browser? Words that must never be published? | `config.json`, `browsers.json`, `blocklist.txt` |
 
 It never asks for passwords, ID numbers or bank details, and it never overwrites an earlier answer without asking. To change an answer later, say "set up job agent" again or just state the new rule. The full list is in [docs/setup-questionnaire.md](docs/setup-questionnaire.md).
 

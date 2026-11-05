@@ -10,7 +10,7 @@ The `job-agent-setup` skill asks these questions in small batches and writes the
 | `private/notes/job-search.md` | `job-search` (your roles, locations, companies) |
 | `private/jobs/resume/` | `apply` (files to upload) |
 
-**Quick start** (about 10 minutes): A1, A2, A3, A5, B1 to B4, D1, D2. The rest can wait: `apply` asks when a form needs something missing and saves the answer.
+**Quick start** (about 10 minutes): A1, A2, A3, A5, B1 to B4, D1, D2, D3. The rest can wait: `apply` asks when a form needs something missing and saves the answer.
 
 ## A. About you (every application)
 
@@ -43,6 +43,6 @@ Skip this part if no cover letters are wanted. The `apply` skill only writes one
 
 1. **Tracker:** create a Claude artifact for your jobs and paste its link.
 2. **Tracker sharing:** who may see its data when you share the link? `private` (the default: only you), `applications` (jobs, application history and charts; recruiter outreach stays yours) or `everything`. See [Sharing the tracker](../README.md#sharing-the-tracker). You can change it at any time.
-3. **Browser:** connect Claude in Chrome and name this computer's browser; the agent only ever uses that one.
+3. **Browser for applying:** your own Chrome with the Claude in Chrome extension (`chrome`: fills everything, resume and cover letter uploads included), or the Claude app's built-in browser (`built-in`: fills the form, but you upload the resume and cover letter yourself). Setup checks whether the extension is already connected before asking. The extension runs in Chrome (Edge and other Chromium browsers may work, unofficially); Firefox and Safari have none, so their users pick `built-in`. If neither is available, automatic applying is off (`none`) and the rest still works. With `chrome`, name this computer's browser; the agent only ever uses that one.
 4. **Email tracking (optional):** which Gmail accounts hold your application emails? This is set up in `email_fetcher`, read-only.
 5. **Privacy check:** list words that must never be published (your name, emails, past employers). They go into `private/blocklist.txt`.

@@ -172,6 +172,8 @@ After saving, report: the tracker link, the `max_posts` value used, counts (full
 
 ## Browser safety: this skill is for THIS computer only
 
+- Which browser: `<APPLY_BROWSER>` in the config. With `built-in`, use the Claude app's built-in browser wherever this skill says "Claude in Chrome tab"; the device rules below are for `chrome` only. With `none`, skip the sources that need a browser and use only web search, web fetch and the ATS APIs.
+
 - This skill, and the `apply` and `cover-letter` skills, belong to one computer. If several people's browsers are connected to the same Claude account, never act on another person's browser.
 - Several Chrome browsers can be connected to the same Claude account. Before any browser action, call `list_connected_browsers`, identify the **local** one (`isLocal`, and the one the user confirmed in the Connect pop-up), and pin it with `select_browser` by device id. Never use the session's default or "in use" browser without confirming it is the one the user picked.
 - **Name and register the browsers.** Keep `<PRIVATE_DIR>/browsers.json`: the user's local browser is saved by name and device id (`local`), and any other connected browser is saved under `other` with its owner. When the user connects through `switch_browser` they can type a name for that browser in the pop-up (use something like "My-Mac-LOCAL"); record the name and the device id from `list_connected_browsers`. Always select by that name/id, never by "in use" or by default.
