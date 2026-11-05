@@ -9,3 +9,6 @@ blocklist.txt
 *.pdf
 .DS_Store
 __pycache__/
+
+# Backups made by backup.sh, in case one is copied in by mistake
+hayhire-backup-*.tar.gz

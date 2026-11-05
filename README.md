@@ -202,6 +202,9 @@ apply to 1104-02            # fill job 1104-02 (salary suggested and explained) 
 submitted                   # record it and add it to the history
 update history              # read Gmail and merge new responses
 pipeline status             # where everything stands
+back up my job data         # export jobs, applications and outreach, pack your private data
+uninstall job agent         # optional backup, then remove the skills
+restore my job data         # bring a backup back after reinstalling
 ```
 
 ## Tests
@@ -232,6 +235,32 @@ The tracker page is yours, and so is the choice of who sees it. It starts **priv
 The setting becomes the page's database access rules, so the database enforces it; the data is not just hidden on the page. Rules cover whole tables, not single fields: shared history rows include the Gmail account address and a Gmail link (the link only opens for someone signed in to that mailbox). Share only with people you trust.
 
 Two things decide what a viewer sees: the **Share** menu lets them open the page, and `TRACKER_SHARING` decides which data loads. To change it, say "set up job agent" and ask to change tracker sharing; the agent updates the setting and the page's rules together. The skills follow the setting and never stop a sync because a page is shared.
+
+## Back up, uninstall and restore
+
+Removing the agent and setting it up again takes three commands, and your jobs, applications and Insights can come back with it. That makes a clean end-to-end test easy too.
+
+```text
+back up my job data       # export the tracker and pack your private data
+uninstall job agent       # optional backup, then remove the skills (and the folder, if you choose)
+restore my job data       # after re-cloning and ./public/install.sh: bring it all back
+```
+
+**What a backup holds** (one archive in `~/hayhire-backups/`, readable only by you, outside the `job-agent` folder so it survives an uninstall):
+
+| Part | Where it comes from |
+|---|---|
+| Jobs, application history, recruiter outreach | the tracker page on claude.ai, exported by Claude (Insights is drawn from these rows) |
+| Your answers, notes, resumes, cover letters and application records | `private/` |
+| Email tracking state and settings | `email_fetcher/data/`, `settings.json`, `credentials.json` |
+
+Gmail login tokens are left out on purpose; you sign in again after a restore. The archive holds personal data: keep it on your computer, never in a repo.
+
+**Uninstall** asks, with clicks, whether to back up first, whether to delete the tracker page (only after the backup succeeds), and whether to move the `job-agent` folder to the Trash. It only removes skill links that point into this copy, so other skills with the same names are left alone. Two things stay for you: removing the app's Gmail access at [myaccount.google.com/permissions](https://myaccount.google.com/permissions), and, for a truly fresh test, this project's Claude Code memory in `~/.claude/projects/`.
+
+**Restore** picks a backup, puts your private files back (asking before replacing anything you have changed), writes the rows into your new tracker page, and refreshes the email sync's local copy so nothing is added twice.
+
+Without Claude, the scripts work on their own: `./public/backup.sh` makes the archive (without the tracker rows), and `./public/uninstall.sh` removes the links (`--help` for options). Running `./public/install.sh` again is safe: it updates links left by an older copy and tells you when it finds a backup.
 
 ## Keeping it private
 
