@@ -29,7 +29,7 @@ The `job-agent-setup` skill starts by reading your resume and filling in everyth
 1. **Goal:** full-time, internship or both, and in what order? How many internships per run, and under what conditions?
 2. **Roles in priority order** (for example: 1) ML engineer 2) software engineer), plus titles you never want.
 3. **Level:** the most years of experience a posting may ask for; level labels that count as entry level for you (new grad, I/II, associate).
-4. **Location:** countries and cities in order; remote, hybrid or on-site?
+4. **Location:** cities in order of preference (the resume's city is suggested; type any others), remote regions (click "Remote: US", "Remote: Europe", "Remote: anywhere" or "No remote", or type another region), and which of on-site, hybrid and remote are fine. Typed places are cleaned up and checked: unclear names are asked about, places outside the search are flagged, and you confirm the final list.
 5. **Companies:** companies to check every run, and companies to skip.
 6. **Run size:** default number of jobs per run, and how old a posting may be (default 14 days).
 

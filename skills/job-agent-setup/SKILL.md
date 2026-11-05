@@ -13,11 +13,20 @@ Setup starts from the resume, so the user only answers what a resume cannot show
 4. **Ask what a resume cannot show**, a few clickable questions at a time, offering likely options from the resume. Quick start first:
    - Work authorization: needs sponsorship now / in the future / never; current status (for example student visa with work permission, work visa, permanent resident, citizen, or Other). Ask only what forms need; never ask for ID numbers.
    - Goal: full-time, internship or both; roles in priority order (`multiSelect`, roles suggested from the resume); the most years of experience a posting may ask for.
-   - Location: countries and cities (suggest the resume's city), and remote, hybrid or on-site.
+   - Location, as two clickable questions (`multiSelect`), each with "Other" for anything not listed:
+     - **Cities:** suggest the resume's city and two or three large job markets near it. The user types any others.
+     - **Remote:** "Remote: US", "Remote: Europe", "Remote: anywhere", "No remote". The user types other regions or limits under "Other" (for example "Remote: Canada" or "US Eastern time zone only").
+     Then ask (clickable) which work styles are fine: on-site, hybrid, remote.
    - Graduation (students): is the date certain, or could it move?
    - Cover letters: yes or skip. If yes, draft the fixed paragraphs from the resume for approval (part C).
    - Tracker link and sharing (step 6), and browser (step 7).
    Then offer the rest (standard answers, self-identification, companies to check or skip, words that must never be published). They can wait: `apply` asks when a form needs something missing and saves the answer.
+   **Check typed answers before saving.** Anything typed under "Other" that feeds the search (locations, remote regions, role titles):
+   - Clean it up: fix typos, add the state or country ("Austin" becomes "Austin, TX"), expand regions and nicknames into the places the search looks for ("Bay Area" becomes San Francisco, San Jose, Oakland and Palo Alto; "NYC" becomes New York, NY; "MLE" becomes Machine Learning Engineer).
+   - Never guess when it is unclear: ask with a clickable question ("Portland: Oregon or Maine?").
+   - Flag anything the search does not cover: "London is outside the US, and job search only covers the US. Keep it anyway, or drop it?"
+   - Confirm the final list in priority order with one clickable question ("Your locations: 1) New York, NY 2) Remote: US 3) Austin, TX. Right?"), with "Looks right" or "Change it". The order is the priority: jobs in the first choice come first.
+   Apply the same checks whenever the user changes these answers later.
 5. Write each answer where the questionnaire's table says: `config.json`, `apply/profile.md` (format of `examples/profile.example.md`), `cover-letter/facts.json` (format of `examples/facts.example.json`), `notes/job-search.md`. Read each file before writing; never overwrite an existing answer without showing the old and new value and asking. Never ask for or store passwords, ID numbers or bank details. Keep every file in `private/` readable only by the user (`chmod 600`).
 6. **Tracker sharing.** Ask who may see the tracker's data when its link is shared, and save the answer as `TRACKER_SHARING` in `config.json` (default `private`). It is the user's choice: explain what each level shows, then do what they pick. Apply it as the page's `db` access rules (`read` levels; writes stay with the owner):
 

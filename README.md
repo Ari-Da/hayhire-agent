@@ -153,7 +153,7 @@ Setup starts from your resume, so there is little to type:
 
 1. **Share your resume.** Drop the PDF into the chat. It is saved in your private folder, and it is the file `apply` uploads.
 2. **Check what it found.** The agent fills in your contact details, education, work history and skills from the resume, and you confirm or fix each section with a click.
-3. **Answer the rest with clicks.** What a resume cannot show (sponsorship, roles, locations, browser, tracker sharing) comes as clickable questions in the chat, with an "Other" box for anything else.
+3. **Answer the rest with clicks.** What a resume cannot show (sponsorship, roles, locations, browser, tracker sharing) comes as clickable questions in the chat, with an "Other" box for anything else. Anything typed is checked before it is saved: typos are fixed, regions such as "Bay Area" become real cities, unclear names are asked about, and you confirm the final list.
 
 Answers are saved in `job-agent/private/`, outside every repo, and every skill reads them from there. The quick start takes about 5 minutes; the rest can wait, because `apply` asks when a form needs something missing and remembers the answer.
 
@@ -172,7 +172,7 @@ Sample questions:
 | 🛂 Work authorization | Do you need visa sponsorship now? In the future? Does student work permission count as sponsorship? | `apply/profile.md` |
 | 🎓 Graduation | Is the graduation date on the resume certain, or could it move? | `apply/profile.md` |
 | 🎯 Roles and level | Which roles, in priority order? Which titles should never show up? The most years of experience a posting may ask for? | `notes/job-search.md` |
-| 📍 Location | Which cities, in order? Remote, hybrid or on-site? | `notes/job-search.md` |
+| 📍 Location | Which cities, in order? Remote: US, Europe, anywhere, or none (or type another region)? On-site, hybrid or remote? Typed places are checked ("Portland: Oregon or Maine?") and the final list is confirmed. | `notes/job-search.md` |
 | 🏢 Companies | Which companies should be checked on every run? Any to skip? | `notes/job-search.md` |
 | ✉️ Cover letter *(optional)* | Skip it if no cover letters are wanted. Otherwise: formal, warm or concise? The opening line and experience paragraph? Products genuinely used, for a true personal tie? | `cover-letter/facts.json` |
 | ⚙️ Setup | The tracker page link, and who may see it? Apply in your own Chrome (with the extension) or the built-in browser? Words that must never be published? | `config.json`, `browsers.json`, `blocklist.txt` |
