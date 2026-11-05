@@ -14,7 +14,16 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 *All names, companies and numbers below are sample data.*
 
-<p align="center"><b>1. Find</b>: every posting checked on the company's own site</p>
+<p><b>1. Set up once</b>: your resume plus a few clicks becomes your profile</p>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-0-setup.png">
+  <img src="docs/images/light-0-setup.png" alt="setup: the agent reads the resume and asks roles, locations and sponsorship as clickable questions" width="100%">
+</picture>
+
+<br>
+
+<p><b>2. Find</b>: jobs that match your profile, each checked on the company's own site</p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-1-job-search.png">
@@ -23,7 +32,7 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 <br>
 
-<p align="center"><b>2. Apply</b>: the agent fills the form, a person clicks Submit</p>
+<p><b>3. Apply</b>: the agent fills the form and suggests a salary, a person clicks Submit</p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-2-apply.png">
@@ -32,7 +41,7 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 <br>
 
-<p align="center"><b>3. Track</b>: replies read from email, merged, never deleted</p>
+<p><b>4. Track</b>: replies read from email, merged, never deleted</p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-3-history.png">
@@ -41,7 +50,7 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 <br>
 
-<p align="center"><b>4. Outreach</b>: recruiter emails and who wrote back</p>
+<p><b>5. Outreach</b>: recruiter emails and who wrote back</p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-4-outreach.png">
