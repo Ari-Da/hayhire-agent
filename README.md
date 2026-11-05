@@ -148,7 +148,13 @@ The skills are the same files that are published here: they read your details fr
 
 ## Setup questionnaire
 
-Before the first search, the `job-agent-setup` skill asks a short questionnaire, a few questions at a time, in plain chat. Answers are saved in `job-agent/private/`, outside every repo, and every skill reads them from there. The quick start takes about 10 minutes; the rest can wait, because `apply` asks when a form needs something missing and remembers the answer.
+Setup starts from your resume, so there is little to type:
+
+1. **Share your resume.** Drop the PDF into the chat. It is saved in your private folder, and it is the file `apply` uploads.
+2. **Check what it found.** The agent fills in your contact details, education, work history and skills from the resume, and you confirm or fix each section with a click.
+3. **Answer the rest with clicks.** What a resume cannot show (sponsorship, roles, locations, browser, tracker sharing) comes as clickable questions in the chat, with an "Other" box for anything else.
+
+Answers are saved in `job-agent/private/`, outside every repo, and every skill reads them from there. The quick start takes about 5 minutes; the rest can wait, because `apply` asks when a form needs something missing and remembers the answer.
 
 Start it with:
 
@@ -160,9 +166,10 @@ Sample questions:
 
 | Topic | Example questions | Saved to |
 |---|---|---|
-| 👤 About you | Legal and preferred name? Email, phone, city? Which link goes in a single "links" field? | `apply/profile.md` |
+| 📄 From your resume | Contact details, education, work history and skills, read from the resume. "3 jobs found, the latest Example Corp, Software Engineer. Right?" | `apply/profile.md` |
+| 👤 About you | Preferred name? Which link goes in a single "links" field? | `apply/profile.md` |
 | 🛂 Work authorization | Do you need visa sponsorship now? In the future? Does student work permission count as sponsorship? | `apply/profile.md` |
-| 🎓 Education | Which degrees, with dates and GPA? Is the graduation date certain, or could it move? | `apply/profile.md` |
+| 🎓 Graduation | Is the graduation date on the resume certain, or could it move? | `apply/profile.md` |
 | 🎯 Roles and level | Which roles, in priority order? Which titles should never show up? The most years of experience a posting may ask for? | `notes/job-search.md` |
 | 📍 Location | Which cities, in order? Remote, hybrid or on-site? | `notes/job-search.md` |
 | 🏢 Companies | Which companies should be checked on every run? Any to skip? | `notes/job-search.md` |
@@ -171,10 +178,13 @@ Sample questions:
 
 It never asks for passwords, ID numbers or bank details, and it never overwrites an earlier answer without asking. To change an answer later, say "set up job agent" again or just state the new rule. The full list is in [docs/setup-questionnaire.md](docs/setup-questionnaire.md).
 
+**New resume?** Say **"update my resume"** and share the file. The agent asks whether it replaces the old one or is another version (for example one for ML roles), keeps the old file in `resume/archive/`, shows what changed and updates your profile after you confirm.
+
 ## Usage
 
 ```text
-set up job agent            # first time: the questionnaire
+set up job agent            # first time: reads your resume, then clickable questions
+update my resume            # swap in or add a resume version
 run a job for 15            # up to 15 new verified jobs from the last 14 days
 /job-search 20 7            # up to 20 jobs posted in the last 7 days
 job run startup 10          # Y Combinator startups that sponsor visas

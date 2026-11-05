@@ -1,6 +1,6 @@
 # Setup questionnaire
 
-The `job-agent-setup` skill asks these questions in small batches and writes the answers into your `private/` folder. Nothing in this repo is pre-filled with anyone's data. Never give passwords, ID numbers or bank details: the agent never asks for them and never types them.
+The `job-agent-setup` skill starts by reading your resume and filling in everything it shows: contact details, education, work history and skills. You confirm or fix that, then answer the rest as clickable questions in the chat, a few at a time. Topics marked 📄 come mostly from the resume. Answers are written into your `private/` folder. Nothing in this repo is pre-filled with anyone's data. Never give passwords, ID numbers or bank details: the agent never asks for them and never types them.
 
 | Answers go to | Used by |
 |---|---|
@@ -10,15 +10,17 @@ The `job-agent-setup` skill asks these questions in small batches and writes the
 | `private/notes/job-search.md` | `job-search` (your roles, locations, companies) |
 | `private/jobs/resume/` | `apply` (files to upload) |
 
-**Quick start** (about 10 minutes): A1, A2, A3, A5, B1 to B4, D1, D2, D3. The rest can wait: `apply` asks when a form needs something missing and saves the answer.
+**Quick start** (about 5 minutes with a resume): confirm A1, A3, A4 and A5 from the resume, then answer A2, B1 to B4, D1, D2, D3.
+
+**New resume later?** Say "update my resume" and share the file. The agent keeps the old one in `resume/archive/`, shows what changed (a new job, new skills) and updates your answers after you confirm. The rest can wait: `apply` asks when a form needs something missing and saves the answer.
 
 ## A. About you (every application)
 
-1. **Contact:** legal name, preferred name, email, phone, city and country, LinkedIn, GitHub, website. If a form has one links field, which link goes there?
+1. 📄 **Contact:** legal name, preferred name, email, phone, city and country, LinkedIn, GitHub, website. If a form has one links field, which link goes there?
 2. **Work authorization:** which countries? Do you need sponsorship **now**? In the **future**? Does student work permission count as sponsorship for you?
-3. **Education:** for each degree, school, degree, field, dates, GPA. Is your graduation date certain? If not, what are the scenarios?
-4. **Work history:** for each job, employer, title, dates and 3 to 5 true bullets. Anything you do **not** want claimed?
-5. **Skills and files:** skills you can honestly claim, and the exact names to pick in dropdowns. Where are your resume versions, and when is each one used?
+3. 📄 **Education:** for each degree, school, degree, field, dates, GPA. Is your graduation date certain? If not, what are the scenarios?
+4. 📄 **Work history:** for each job, employer, title, dates and 3 to 5 true bullets. Anything you do **not** want claimed?
+5. 📄 **Skills and files:** skills you can honestly claim, and the exact names to pick in dropdowns. Where are your resume versions, and when is each one used?
 6. **Standard answers:** salary rule, earliest start date, relocation, preferred offices in order, "how did you hear about us".
 7. **Self-identification:** gender, ethnicity, veteran and disability answers, or "decline". What to do when a form has no decline option?
 
