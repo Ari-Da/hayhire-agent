@@ -21,7 +21,7 @@ The `job-agent-setup` skill starts by reading your resume and filling in everyth
 3. 📄 **Education:** for each degree, school, degree, field, dates, GPA. Is your graduation date certain? If not, what are the scenarios?
 4. 📄 **Work history:** for each job, employer, title, dates and 3 to 5 true bullets. Anything you do **not** want claimed?
 5. 📄 **Skills and files:** skills you can honestly claim, and the exact names to pick in dropdowns. Where are your resume versions, and when is each one used?
-6. **Standard answers:** salary rule, earliest start date, relocation, preferred offices in order, "how did you hear about us".
+6. **Standard answers:** salary rule (optional: by default `apply` suggests a figure for each job from its posted range, its location and your experience, and explains it; set your own rule, such as a floor, if you prefer), earliest start date, relocation, preferred offices in order, "how did you hear about us".
 7. **Self-identification:** gender, ethnicity, veteran and disability answers, or "decline". What to do when a form has no decline option?
 
 ## B. Your search (drives `job-search`)

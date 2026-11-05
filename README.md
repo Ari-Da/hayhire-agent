@@ -102,6 +102,7 @@ It also answers "pipeline status" and "next". See [harness/README.md](harness/RE
 - **Verified, not scraped.** Every job is confirmed open on the company's own careers site or ATS (Greenhouse, Ashby, Workday APIs), deduplicated across runs, and filtered by sponsorship and graduation-date rules.
 - **Submissions are caught three ways.** Saying "submitted" (or ticking the job on the page) logs it at once. If the person says nothing, the next command checks the application's tab for a confirmation page, and "update history" checks for a confirmation email. A job is only marked applied on a clear sign, never a guess.
 - **One writer per collection.** Job search adds jobs, the apply skill marks them and logs submissions, and the email sync only merges into the history. Nothing deletes history rows except the person, by hand.
+- **Personal salary answers.** When a form asks for expected pay, `apply` fills in a figure for that job and that person, and explains it in a couple of lines. It starts from the posting's pay range (or public pay data for the same role and city when none is posted), then places the person in it by fit: their experience from the resume against the job's requirements and day-to-day responsibilities. There is no default to the low end, and the figure never goes outside the posted range. A salary rule saved at setup, such as a floor, always wins, and the person can change the figure before submitting.
 - **Merge-only sync.** Confirmation emails are matched to logged submissions by company (subsidiaries included), role and date. Unclear matches go to a needs-review list instead of being guessed, and a status only ever moves forward.
 - **Privacy first.** Gmail access is read-only and the scope is checked on every token. Recruiter emails are classified by a small local model (Ollama, `llama3.2:3b`), so email text never leaves the machine.
 
@@ -167,7 +168,7 @@ Sample questions:
 | Topic | Example questions | Saved to |
 |---|---|---|
 | 📄 From your resume | Contact details, education, work history and skills, read from the resume. "3 jobs found, the latest Example Corp, Software Engineer. Right?" | `apply/profile.md` |
-| 👤 About you | Preferred name? Which link goes in a single "links" field? | `apply/profile.md` |
+| 👤 About you | Preferred name? Which link goes in a single "links" field? Any salary rule, such as a floor? (optional: by default each job gets its own suggested figure) | `apply/profile.md` |
 | 🛂 Work authorization | Do you need visa sponsorship now? In the future? Does student work permission count as sponsorship? | `apply/profile.md` |
 | 🎓 Graduation | Is the graduation date on the resume certain, or could it move? | `apply/profile.md` |
 | 🎯 Roles and level | Which roles, in priority order? Which titles should never show up? The most years of experience a posting may ask for? | `notes/job-search.md` |
@@ -188,7 +189,7 @@ update my resume            # swap in or add a resume version
 run a job for 15            # up to 15 new verified jobs from the last 14 days
 /job-search 20 7            # up to 20 jobs posted in the last 7 days
 job run startup 10          # Y Combinator startups that sponsor visas
-apply to 1104-02            # fill job 1104-02 and stop before Submit
+apply to 1104-02            # fill job 1104-02 (salary suggested and explained) and stop before Submit
 submitted                   # record it and add it to the history
 update history              # read Gmail and merge new responses
 pipeline status             # where everything stands

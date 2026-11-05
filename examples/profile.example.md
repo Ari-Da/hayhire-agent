@@ -24,6 +24,9 @@ Copy to `private/apply/profile.md` (install.sh does this) and replace every valu
 - Example Corp, Software Engineer (Jan 2022 - Jul 2025)
 - Role descriptions to paste: keep one approved paragraph per job here.
 
+## Salary
+- Rule: suggest a figure for each job (the default), never below $90,000 a year.
+
 ## Preferences
 - Office preference order: 1) New York 2) San Francisco 3) Seattle
 - Willing to relocate / work in office: Yes

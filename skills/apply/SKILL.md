@@ -42,12 +42,31 @@ description: Fill out a job application in the user's chosen browser (their own 
 
 1. Find the job: the `jobs` document whose id starts with `r<MMDD>-<NN>-` (e.g. "1104-02" is `r1104-02-<company>`). If it is already `applied: true`, say so and ask before going on.
 2. Open the job's `url` in the chosen browser. With `chrome`, pin the local browser first and use the tab group (create the group if it is gone, per the browser safety rules). With `built-in`, open it in a new built-in browser tab.
-3. Fill the form from `profile.md`. Ask when a question is not covered; never guess.
+3. Fill the form from `profile.md`. Ask when a question is not covered; never guess. Salary questions are the exception: suggest a figure as in "Salary questions" below.
 4. Resume: pick it from `<JOBS_DIR>/resume/`. Cover letter: only if the form has a cover letter field, generate it with the `cover-letter` skill. With `chrome`, attach both. With `built-in`, leave the upload fields empty and list them for the user with the full path of each file. If `<PRIVATE_DIR>/cover-letter/facts.json` does not exist, cover letters were skipped in setup: leave the field empty (or skip it if optional) and say so.
 5. Essays: use saved answers verbatim where they fit, otherwise draft from the resume and website and flag each draft for their review.
 6. Save a record of the filled form: `<JOBS_DIR>/applications/<Company>_<Role>_Application_Record_<YYYY-MM-DD>.pdf`. If the browser cannot print a PDF, save the same name as `.md` with every question and answer.
 7. Add the job to `<PRIVATE_DIR>/jobs/pending_submit.json` (create it if missing, `chmod 600`): `{"jobsId", "company", "role", "url", "tabId", "filledAt"}`, where `tabId` is the browser tab and `filledAt` is today (YYYY-MM-DD).
-8. Stop and tell them the form is ready to review and submit, listing anything left blank, every drafted essay, and (with `built-in`) the files they need to upload. Add one line: Say "submitted" when done, or just carry on and I'll check the tab next time.
+8. Stop and tell them the form is ready to review and submit, listing anything left blank, every drafted essay, the salary figure with its reasons, and (with `built-in`) the files they need to upload. Add one line: Say "submitted" when done, or just carry on and I'll check the tab next time.
+
+## Salary questions
+
+When a form asks for expected or desired pay, fill in a figure that fits this job, this place and this person, and explain it. The user can always change it before submitting.
+
+1. **The user's rule wins.** If `profile.md` has a salary rule (for example a floor, "always a range" or "write negotiable when allowed"), follow it, and use the steps below only for what it leaves open. Never go below a floor the user set.
+2. **Gather the facts:**
+   - **The posting's own pay range,** from the job page or the `salaryRange` field on the tracker row. Many US states (for example California, Colorado, New York and Washington) require one. It is the strongest anchor.
+   - **Location:** the job's city, or the user's city for a remote role. Pay differs a lot by city.
+   - **Level, requirements and responsibilities:** title, level (new grad, I, II), years asked for, the skills the role stresses, and what the person would actually do (build features under guidance, own a system, lead a project, mentor others).
+   - **The user's fit, from `profile.md` and the resume:** years of relevant experience, degree level, and how closely past work matches both the requirements and the responsibilities. Look at what they actually did (shipped products, owned systems, led work, research), not only job titles.
+3. **No posted range:** estimate one from public data for the same role, level and city (for example levels.fyi, the company's pay ranges for the same role in other states, or the US Bureau of Labor Statistics). Use at least two sources when you can, and prefer the same company. Say clearly that it is an estimate.
+4. **Place the user inside the range by fit. Do not default to the low end:** each person's place depends on their own experience against this job.
+   - Lower part: they meet the minimum, and the responsibilities are a step up from what they have done.
+   - Middle: they meet the requirements well, and have done similar work before (for example relevant internships, or a master's for a new-grad role).
+   - Upper part: they clearly exceed the requirements, and have already carried responsibilities like these.
+   Never above the posted maximum or below the posted minimum.
+5. **Match the field:** a single number when it asks for one, a range when it allows text (narrow, about 10 to 15 percent wide), the nearest option in a dropdown, hourly for internships paid by the hour, the posting's currency, and base pay unless the form asks for total pay. Use round numbers.
+6. **Explain it** in the "ready to review" message, in two or three lines: the figure, the range it came from (posted, or estimated and from which sources), and why the user sits where they do. For example: "Salary: $118,000. Posted range $105,000 - $150,000 (Seattle). You meet the requirements with a relevant master's and one ML internship, so lower-middle of the band."
 
 ## Was it submitted? (pending check)
 
