@@ -5,6 +5,7 @@
   "EMAIL_FETCHER_DIR": "~/job-agent/email_fetcher",
   "TRACKER_URL": "https://claude.ai/artifact/<your-tracker-id>",
   "TRACKER_NAME": "My Jobs",
+  "TRACKER_SHARING": "private",
   "BROWSER_NAME": "My-Mac",
   "HARNESS_START_DATE": "2026-01-01",
   "GRAD_DATE": "May 2028",

@@ -25,7 +25,7 @@ description: Fill out a job application in the user's local Chrome from their sa
 - Resumes: attach only from `<JOBS_DIR>/resume/` (versions and when to use each are in `profile.md`)
 - Cover letters: the `cover-letter` skill, output in `<JOBS_DIR>/cover_letters/`
 - Records: `<JOBS_DIR>/applications/`
-- Tracker page: <TRACKER_URL> (stop if it is not private)
+- Tracker page: <TRACKER_URL> (who can read its data is the user's choice, `<TRACKER_SHARING>`; see the `job-agent-setup` skill)
 
 ## "apply to <MMDD-NN>"
 

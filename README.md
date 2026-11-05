@@ -79,7 +79,7 @@ flowchart TB
     style TRACK fill:none,stroke:#a5b4fc,stroke-dasharray:4 3
 ```
 
-Gmail is only ever read. The tracker page is a private Claude artifact.
+Gmail is only ever read. The tracker page is a Claude artifact, private by default; its owner decides who else can see it.
 
 ## The harness
 
@@ -127,7 +127,7 @@ Then open Claude Code and say **"set up job agent"** to answer the [setup questi
 
 Consent boxes, CAPTCHAs and passwords are always done by hand. Without Claude in Chrome, the search, cover letters and email tracking still work.
 
-The tracker page is a private Claude artifact; setup asks for its link.
+The tracker page is a Claude artifact; setup asks for its link and who may see it (see [Sharing the tracker](#sharing-the-tracker)).
 
 ```text
 job-agent/
@@ -159,7 +159,7 @@ Sample questions:
 | 📍 Location | Which cities, in order? Remote, hybrid or on-site? | `notes/job-search.md` |
 | 🏢 Companies | Which companies should be checked on every run? Any to skip? | `notes/job-search.md` |
 | ✉️ Cover letter *(optional)* | Skip it if no cover letters are wanted. Otherwise: formal, warm or concise? The opening line and experience paragraph? Products genuinely used, for a true personal tie? | `cover-letter/facts.json` |
-| ⚙️ Setup | The private tracker page link? Which Chrome is this computer's? Words that must never be published? | `config.json`, `browsers.json`, `blocklist.txt` |
+| ⚙️ Setup | The tracker page link, and who may see it? Which Chrome is this computer's? Words that must never be published? | `config.json`, `browsers.json`, `blocklist.txt` |
 
 It never asks for passwords, ID numbers or bank details, and it never overwrites an earlier answer without asking. To change an answer later, say "set up job agent" again or just state the new rule. The full list is in [docs/setup-questionnaire.md](docs/setup-questionnaire.md).
 
@@ -191,6 +191,22 @@ python -m unittest discover -s tests
 - Matching emails to applications is rule-based and sometimes wrong; unclear cases are left for the person to review.
 - Companies that send no confirmation email, and replies by phone, are not tracked.
 
+## Sharing the tracker
+
+The tracker page is yours, and so is the choice of who sees it. It starts **private**, and one setting, `TRACKER_SHARING` in `private/config.json`, opens it up:
+
+| Setting | Someone you share the link with sees |
+|---|---|
+| `private` *(default)* | the page, with no data |
+| `applications` | jobs, application history and charts; recruiter outreach stays yours |
+| `everything` | all of it, recruiter outreach included |
+
+The setting becomes the page's database access rules, so the database enforces it; the data is not just hidden on the page. Rules cover whole tables, not single fields: shared history rows include the Gmail account address and a Gmail link (the link only opens for someone signed in to that mailbox). Share only with people you trust.
+
+Two things decide what a viewer sees: the **Share** menu lets them open the page, and `TRACKER_SHARING` decides which data loads. To change it, say "set up job agent" and ask to change tracker sharing; the agent updates the setting and the page's rules together. The skills follow the setting and never stop a sync because a page is shared.
+
 ## Keeping it private
+
+This section is about the code: nothing personal ever goes into this repo, whatever the tracker setting.
 
 `scripts/check_private.py` scans every file and the whole git history against `private/blocklist.txt`, which lives outside the repo, and runs before each commit and push (`scripts/install_hooks.sh`).

@@ -17,7 +17,7 @@ Rules: never access Gmail directly; only the scripts read it, read-only. Only wr
 
 ## Application history (`email_applications`)
 
-1. Read the artifact and stop if it is not private.
+1. Read the artifact. Its data is shared as the user chose (`<TRACKER_SHARING>`, default `private`); do not stop because the page is shared. If `<TRACKER_SHARING>` lets other people read `email_applications` and this is the first sync since that choice, remind the user once that history rows include the Gmail account address and a Gmail link (the link only opens for someone signed in to that mailbox).
 2. Run `venv/bin/python run.py tracker`. If it ends with skipped accounts, tell the user which, and stop unless they say to go on.
 3. Do not download the page's rows: the database refuses to save them to files. The sync compares against the local copy in `data/sync/mirror/email_applications`, which only changes through these steps and the apply skill.
 4. Run `venv/bin/python sync_prepare.py`. It merges the results into the page rows and writes `data/sync/plan.json`. It never deletes: rows the apply skill wrote are filled in when their email arrives, and email rows a scan no longer finds are flagged for review.

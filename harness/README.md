@@ -32,6 +32,6 @@ Finding and applying need a browser and judgement, and the tracker database can 
 ## Rules it enforces
 
 - One writer per collection, and nothing deletes history rows.
-- The tracker page must stay private.
+- Who can read the tracker's data is the owner's choice (`TRACKER_SHARING`, private by default). See [Sharing the tracker](../README.md#sharing-the-tracker).
 - The person submits every application.
 - Scheduling is off by default; steps run when asked.

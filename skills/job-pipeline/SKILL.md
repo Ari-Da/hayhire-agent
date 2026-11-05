@@ -32,6 +32,6 @@ The pipeline connects four skills. Each keeps its own job; this skill decides wh
 ## Rules
 
 - One writer per collection: `job-search` adds `jobs` rows, `apply` sets `applied` / `appliedAt` and adds `skill-...` history rows, the email sync merges into `email_applications`, and nothing deletes history rows except the user by hand.
-- The tracker page must stay private: it holds Gmail links. Stop if it is not.
+- Who can read the tracker's data is the user's choice, `<TRACKER_SHARING>` in the config (default `private`). Never change it on your own, and never stop because the page is shared. If the page's access rules do not match the setting, say so once and offer to fix the rules (see the `job-agent-setup` skill).
 - The user submits every application themselves. Never click Submit.
 - Scheduling is paused (user decision). Run steps only when asked.
