@@ -1,13 +1,13 @@
 ---
-name: job-search
-description: Search the web for US entry-level full-time jobs (priority) and internships in AI/ML Engineering, Software Engineering, Full-stack, Frontend, and Backend, verify each posting is still open on the company's own careers page, and save the results to the tracker page. When the user says the run is for another person, instead search data engineer / data analyst roles (preferably outside the US, Europe first) and save them to that person's tracker. Use when the user asks to find jobs, internships, or run a job search (for the user by default, or for a second person set up in the private notes).
+name: search
+description: HayHire: Search the web, in the places the user chose at setup, for entry-level full-time jobs (priority) and internships in AI/ML Engineering, Software Engineering, Full-stack, Frontend, and Backend, verify each posting is still open on the company's own careers page, and save the results to the tracker page. When the user says the run is for another person, instead search data engineer / data analyst roles (preferably outside the US, Europe first) and save them to that person's tracker. Use when the user asks to find jobs, internships, or run a job search (for the user by default, or for a second person set up in the private notes).
 ---
 
-# Job Search (US only)
+# Job Search
 
 ## Setup (read first)
 
-1. Read `~/.claude/job-agent-private/config.json` (a link to the `private` folder next to this repo, made by `install.sh`). Every `<NAME>` placeholder in this skill is a value from it (`<TRACKER_URL>`, `<PRIVATE_DIR>`, `<JOBS_DIR>`, ...). Stop and ask if it is missing.
+1. Read `~/.claude/job-agent-private/config.json` (a link to the user's private folder, made by the `hayhire:setup` skill). Every `<NAME>` placeholder in this skill is a value from it (`<TRACKER_URL>`, `<PRIVATE_DIR>`, `<JOBS_DIR>`, ...). If it is missing, HayHire is not set up yet: offer to run `hayhire:setup`.
 2. Read `<PRIVATE_DIR>/notes/job-search.md` if it exists: the user's own rules for this skill. They add to this file and win where they disagree.
 
 ## Startup run
@@ -23,8 +23,8 @@ description: Search the web for US entry-level full-time jobs (priority) and int
 
 ## Input
 
-- `max_posts` (optional integer): the maximum number of job rows to return in this run. **Default: 20.** Read it from the user's invocation (e.g. "run job-search 30", "job search, max 10 posts", `/job-search 15`). If the user gives no number, use 20.
-- `max_age_days` (optional integer): the oldest allowed posting date. **Default: 14.** Read it as a second number in the invocation (e.g. `/job-search 20 7` = up to 20 jobs posted in the last 7 days). A job qualifies only if its **original posting date** is no more than `max_age_days` before the run date (today). No exceptions for Summer 2027 or other start dates.
+- `max_posts` (optional integer): the maximum number of job rows to return in this run. **Default: 20.** Read it from the user's invocation (e.g. "run a job search for 30", "job search, max 10 posts", `/hayhire:search 15`). If the user gives no number, use 20.
+- `max_age_days` (optional integer): the oldest allowed posting date. **Default: the "Max posting age" in `<PRIVATE_DIR>/notes/job-search.md`, or 14 if none is saved.** Read it as a second number in the invocation (e.g. `/hayhire:search 20 7` = up to 20 jobs posted in the last 7 days). A job qualifies only if its **original posting date** is no more than `max_age_days` before the run date (today). No exceptions for Summer 2027 or other start dates.
   - Use the original posted/published date: Ashby `publishedAt`, Workday `startDate`, Amazon `posted_date`, Microsoft/Meta "Date posted", Greenhouse `first_published` when present. Greenhouse `updated_at` and SimplifyJobs "Age" are only hints, not the posting date; confirm on the company's posting before including.
   - If a posting's date cannot be found, leave it out and count it in the summary ("N skipped, date unknown").
   - If fewer than `max_posts` jobs fit the window, return fewer and say so. Never reach back to older postings to fill the list.
@@ -34,11 +34,12 @@ description: Search the web for US entry-level full-time jobs (priority) and int
 
 ## Candidate profile (apply to every decision)
 
-- Read the candidate's facts from `<PRIVATE_DIR>/apply/profile.md` (see `examples/profile.example.md` in the repo): degree, graduation date and work authorization. Below, `<GRAD_DATE>` is the planned graduation, `<ALT_GRAD_DATE>` a possible later one, and `<INTERN_YEAR>` the internship year, all from `config.json`.
-- The sponsorship rules below apply when the profile says the candidate needs visa sponsorship now or in the future. Skip them if it does not.
+- Read the candidate's facts from `<PRIVATE_DIR>/apply/profile.md` (see `${CLAUDE_PLUGIN_ROOT}/examples/profile.example.md`): degree, graduation date and work authorization. Below, `<GRAD_DATE>` is the planned graduation, `<ALT_GRAD_DATE>` a possible later one, and `<INTERN_YEAR>` the internship year, all from `config.json`.
+- The sponsorship rules below are for **US roles only**, and apply when the profile says the candidate needs US visa sponsorship now or in the future. Skip them otherwise. Outside the US there is no visa or work-permit filtering yet: keep the posting, and note any stated work-permit requirement in `notes`.
 - Degree: exclude roles and internships restricted to a different degree level than the candidate's (e.g. undergraduate-only internships for a graduate student, PhD-only roles for a Master's student). For new-grad roles, a Bachelor's requirement is fine if a higher degree counts or the posting says "or equivalent/higher".
-- Expected graduation: **<GRAD_DATE>**. Open to full-time roles starting after graduation.
-- US-located roles only (remote-US is fine if the employer is US-based and hires in the US). Exclude roles outside the US.
+- Expected graduation: **<GRAD_DATE>**. Open to full-time roles starting after graduation. If `GRAD_DATE` is empty (not a current student), skip the graduation-date rules, and leave internships out unless the user asks for them.
+- **Places:** only the places under "Places" in `<PRIVATE_DIR>/notes/job-search.md`, in that priority order. Remote roles count only if the employer hires in a chosen place. If no places are saved, ask the user once (clickable) and save the answer; never assume the US.
+- **Sources per place:** the US-specific sources below (the SimplifyJobs lists, the Y Combinator US filter, `sponsor_companies.csv`) are for US places only. For other places, search LinkedIn (read-only) and the main job boards of that country with the place as the location, and company careers sites and ATS boards (Greenhouse, Ashby, Lever, Workday, Personio, SmartRecruiters) of companies hiring there. Every posting is still verified on the company's own site.
 
 ## Targets
 
@@ -89,7 +90,7 @@ If `<ALT_GRAD_DATE>` is set, the candidate's graduation may move from **<GRAD_DA
 
 ## Sponsor-friendly company list (search these first)
 
-`sponsor_companies.csv` in this skill's folder (`<SKILLS_DIR>/job-search/sponsor_companies.csv`) is a curated starting list of US companies that file many H-1B petitions, with priority tiers (1 = best bet) and notes. It was compiled in October 2026 from 2026 H-1B ranking articles.
+`sponsor_companies.csv` in this skill's folder (`${CLAUDE_PLUGIN_ROOT}/skills/search/sponsor_companies.csv`) is a curated starting list of US companies that file many H-1B petitions, with priority tiers (1 = best bet) and notes. It was compiled in October 2026 from 2026 H-1B ranking articles.
 
 - **Tier 0 (top priority, user-chosen big tech and AI labs: Google, Amazon, Microsoft, Apple, Meta, OpenAI, Anthropic):** search each one's own careers site directly on every run for matching new-grad (priority) and Summer/Spring <INTERN_YEAR> internship roles, even if they do not appear on any job-board list. Do not skip a Tier 0 company because it was missing from the SimplifyJobs lists; if a Tier 0 company has no qualifying open role, say so in the chat summary.
 - **Amazon and its subsidiaries (Audible, Twitch, Ring, Annapurna Labs, Zoox is separate) are all on amazon.jobs, and many entry-level engineering roles are NOT labeled "new grad" or "early career" in the title** (e.g. a plain "Software Development Engineer" whose basic qualifications are just "Bachelor's degree" and "experience programming in one language"). Do not rely on title keywords for Amazon. Instead scan recent postings from `https://www.amazon.jobs/en/search.json?base_query=<q>&country=USA&result_limit=100&offset=<n>&sort=recent` for several queries (software development engineer, software engineer, machine learning engineer, data engineer, front end, full stack), page through at least 300 results each, then filter on `posted_date` (inside the age window) and on `basic_qualifications` (no "N years" of experience required, Bachelor's or Master's degree). Include roles in New Jersey and New York. Audible and similar career sites (e.g. audiblecareers.com) link to the same amazon.jobs posting, so search amazon.jobs.
@@ -141,7 +142,7 @@ LinkedIn is used only to **find** postings that other sources miss. It is never 
 For every candidate listing, follow these steps. Do not skip step 3.
 
 1. **Discover.** Start with the public SimplifyJobs lists (`https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/README.md` and `.../Summer<INTERN_YEAR>-Internships/dev/README.md`): parse the HTML tables and skip rows flagged with 🛂 (no sponsorship), 🇺🇸 (citizenship) or 🔒 (closed). Then search broadly. Use WebSearch/WebFetch, and the built-in browser for JS-rendered pages (careers pages often return empty to plain fetch; wait a few seconds and read page text). Sources: LinkedIn, Indeed, Handshake, Glassdoor, Wellfound, Simplify, Built In, GitHub new-grad/internship lists (e.g. SimplifyJobs, speedyapply), company career sites, and "new grad 2027" / "software engineer new grad" queries. Use several query variations per role family.
-2. **Shortlist.** Drop anything non-US, senior-level, or with a no-sponsorship-now-or-future statement.
+2. **Shortlist.** Drop anything outside the chosen places, senior-level, or (US roles, when sponsorship is needed) with a no-sponsorship-now-or-future statement.
 3. **Verify on the company's own careers page (required).** Quickest reliable method: the public posting data behind the company's ATS (Greenhouse `boards-api.greenhouse.io/v1/boards/<board>/jobs/<id>`, Ashby `api.ashbyhq.com/posting-api/job-board/<board>`, Workday `<host>/wday/cxs/<tenant>/<site>/job/<path>`), which returns 404 or `canApply: false` for closed jobs and gives the full description to scan for sponsorship and graduation wording. Use the browser for pages without such an API (e.g. Google). Job boards often show stale or closed postings. For each shortlisted job:
    - Find the company's official careers site (not a job board) and locate the same posting by title, location, or requisition/job ID.
    - Confirm it is **currently open** (Apply button present, not "no longer accepting applications", not redirecting to a generic search page).
@@ -160,7 +161,7 @@ Results go to **the tracker page** (formerly Job Posts Tracker): <TRACKER_URL>
 - Document id: `r<MMDD>-<NN>-<company-slug>` (e.g. `r1011-03-stripe`), where MMDD is the run date and NN the row number. For a same-day rerun use `r<MMDD>b-...`.
 - Fields (exact names): `run` (`MM_DD`, e.g. `10_11`; same-day reruns `10_11_2`), `order` (row number, full-time first then internships, by company), `title`, `type`, `company` (add " (Tier N)" if on sponsor_companies.csv), `location`, `posted` (original posting date, YYYY-MM-DD, required), `url` (careers-page link), `boardUrl`, `sponsorship`, `status`, `gradReq`, `verified`, `source`, `notes`, `jobId`, `applied` (false), `appliedAt` (null).
 - `type` is one of `Full-Time Entry Level`, `Internship Summer <INTERN_YEAR>`, `Internship Spring <INTERN_YEAR>`, `Co-op`.
-- `sponsorship` is `Offers sponsorship`, `Unknown` (posting does not say), or `Auth required, no future-sponsorship exclusion`. Never include postings that exclude future sponsorship.
+- `sponsorship` is `Offers sponsorship`, `Unknown` (posting does not say), or `Auth required, no future-sponsorship exclusion` for US roles, and `Not checked (outside US)` elsewhere. Never include US postings that exclude future sponsorship when the user needs it.
 - `gradReq` is required for internships (prefix with `RISKY:` when the posting requires returning to school or a later graduation date than <GRAD_DATE>); "N/A" for full-time unless stated.
 - No CSV backups: the artifacts are the only record. Do not write job_posts_*.csv files.
 - If the ArtifactData tool or the artifact is unavailable, say so and stop; do not write a CSV instead.

@@ -1,6 +1,5 @@
 {
   "PRIVATE_DIR": "~/job-agent/private",
-  "SKILLS_DIR": "~/job-agent/public/skills",
   "JOBS_DIR": "~/job-agent/private/jobs",
   "EMAIL_FETCHER_DIR": "~/job-agent/email_fetcher",
   "TRACKER_URL": "https://claude.ai/artifact/<your-tracker-id>",

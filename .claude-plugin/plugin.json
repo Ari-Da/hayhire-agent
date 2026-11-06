@@ -1,0 +1,17 @@
+{
+  "name": "hayhire",
+  "description": "A human-in-the-loop job search agent: finds verified job postings, fills applications for you to review and submit, writes cover letters, and tracks applications from email.",
+  "author": {
+    "name": "Ari-Da",
+    "url": "https://github.com/Ari-Da"
+  },
+  "homepage": "https://github.com/Ari-Da/hayhire-agent",
+  "repository": "https://github.com/Ari-Da/hayhire-agent",
+  "keywords": [
+    "jobs",
+    "job-search",
+    "applications",
+    "cover-letter",
+    "career"
+  ]
+}

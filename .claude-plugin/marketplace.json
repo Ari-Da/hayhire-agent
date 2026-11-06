@@ -1,0 +1,14 @@
+{
+  "name": "hayhire",
+  "description": "HayHire, a human-in-the-loop job search agent for Claude Code.",
+  "owner": {
+    "name": "Ari-Da"
+  },
+  "plugins": [
+    {
+      "name": "hayhire",
+      "source": "./",
+      "description": "A human-in-the-loop job search agent: finds verified job postings, fills applications for you to review and submit, writes cover letters, and tracks applications from email."
+    }
+  ]
+}

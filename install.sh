@@ -1,36 +1,37 @@
 #!/bin/sh
-# Links the skills into Claude Code and creates the private folder next to
-# this repo from the examples. Nothing in private/ is ever committed: it lives
-# outside the repo.
+# For a cloned copy: loads this folder as the HayHire plugin and creates your
+# private folder. Most people install from the marketplace instead (see the
+# README); this is for running your own edited copy.
+#
+# It links ~/.claude/skills/hayhire to this folder. Claude Code loads a folder
+# there that has .claude-plugin/plugin.json as a plugin, so the skills appear
+# as /hayhire:setup, /hayhire:search and so on, and your edits apply at once.
+# It also removes links left by older installs (one link per skill).
+#
+# Usage: sh install.sh [private folder]   (default: the private folder next to
+#                                           this repo, e.g. ~/job-agent/private)
 set -e
-ROOT="$(cd "$(dirname "$0")" && pwd)"
-PRIVATE="$(dirname "$ROOT")/private"
-mkdir -p "$HOME/.claude/skills"
+ROOT="$(cd "$(dirname "$0")" && pwd -P)"
+SKILLS="$HOME/.claude/skills"
+mkdir -p "$SKILLS"
+
+# Older installs linked each skill on its own, under names that now clash
 for skill in job-agent-setup job-search apply cover-letter sync-applications job-pipeline; do
-  link="$HOME/.claude/skills/$skill"
+  link="$SKILLS/$skill"
   if [ -L "$link" ] && { [ ! -e "$link" ] || grep -q job-agent-private "$link/SKILL.md" 2>/dev/null; }; then
-    # A link from an earlier install of this project (maybe to an old or
-    # deleted copy): point it here.
-    ln -sfn "$ROOT/skills/$skill" "$link"
-    echo "Linked $skill (replaced an older link)"
-  elif [ -e "$link" ] || [ -L "$link" ]; then
-    echo "Skipped $skill: $link already exists and is not from this project"
-  else
-    ln -s "$ROOT/skills/$skill" "$link"
-    echo "Linked $skill"
+    rm "$link"
+    echo "Removed the old link $skill (HayHire now loads as one plugin)"
   fi
 done
-mkdir -p "$PRIVATE/apply" "$PRIVATE/cover-letter" "$PRIVATE/notes" "$PRIVATE/jobs"
-chmod 700 "$PRIVATE"
-[ -f "$PRIVATE/config.json" ] || cp "$ROOT/examples/config.example.json" "$PRIVATE/config.json"
-[ -f "$PRIVATE/apply/profile.md" ] || cp "$ROOT/examples/profile.example.md" "$PRIVATE/apply/profile.md"
-[ -f "$PRIVATE/browsers.json" ] || cp "$ROOT/examples/browsers.example.json" "$PRIVATE/browsers.json"
-[ -f "$PRIVATE/cover-letter/facts.json" ] || cp "$ROOT/examples/facts.example.json" "$PRIVATE/cover-letter/facts.json"
-# The skills find the private folder through this link
-ln -sfn "$PRIVATE" "$HOME/.claude/job-agent-private"
-[ -f "$PRIVATE/blocklist.txt" ] || : > "$PRIVATE/blocklist.txt"
-echo "Done. Fill in the files in $PRIVATE (config.json first), and add your private terms to blocklist.txt."
-BACKUPS="${HAYHIRE_BACKUP_DIR:-$HOME/hayhire-backups}"
-if ls "$BACKUPS"/hayhire-backup-*.tar.gz > /dev/null 2>&1; then
-  echo "Found a backup in $BACKUPS. In Claude, say \"restore my job data\" to bring it back."
+
+link="$SKILLS/hayhire"
+if [ -L "$link" ] || [ ! -e "$link" ]; then
+  ln -sfn "$ROOT" "$link"
+  echo "Linked HayHire: its skills load as /hayhire:<name> in new sessions"
+else
+  echo "Skipped: $link already exists and is not a link. Move it, then run this again."
 fi
+
+sh "$ROOT/scripts/init_private.sh" "${1:-$(dirname "$ROOT")/private}"
+echo "Done. Open Claude Code and say \"set up job agent\"."
+echo "Installed HayHire from the marketplace too? Remove one: both would load."

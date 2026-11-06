@@ -1,13 +1,13 @@
 ---
 name: apply
-description: Fill out a job application in the user's chosen browser (their own Chrome with Claude in Chrome, or the Claude app's built-in browser) from their saved profile, save a PDF record, and after they submit, mark the job applied and add it to the Application History page. Use when the user says "apply to <job number>" (e.g. "apply to 1104-02"), "printout", or "submitted" / "applied" for a job.
+description: HayHire: Fill out a job application in the user's chosen browser (their own Chrome with Claude in Chrome, or the Claude app's built-in browser) from their saved profile, save a PDF record, and after they submit, mark the job applied and add it to the Application History page. Use when the user says "apply to <job number>" (e.g. "apply to 1104-02"), "printout", or "submitted" / "applied" for a job.
 ---
 
 # Apply
 
 ## Setup (read first)
 
-1. Read `~/.claude/job-agent-private/config.json` (a link to the `private` folder next to this repo, made by `install.sh`). Every `<NAME>` placeholder in this skill is a value from it (`<TRACKER_URL>`, `<PRIVATE_DIR>`, `<JOBS_DIR>`, ...). Stop and ask if it is missing.
+1. Read `~/.claude/job-agent-private/config.json` (a link to the user's private folder, made by the `hayhire:setup` skill). Every `<NAME>` placeholder in this skill is a value from it (`<TRACKER_URL>`, `<PRIVATE_DIR>`, `<JOBS_DIR>`, ...). If it is missing, HayHire is not set up yet: offer to run `hayhire:setup`.
 2. Read `<PRIVATE_DIR>/notes/apply.md` if it exists: the user's own rules for this skill. They add to this file and win where they disagree.
 
 ## Hard rules (never break these)
@@ -15,17 +15,17 @@ description: Fill out a job application in the user's chosen browser (their own 
 - Never click Submit. The user reviews every form and submits it themselves.
 - Never tick consent, terms or privacy boxes, never solve CAPTCHAs, never create accounts, never sign in or type passwords.
 - LinkedIn and Handshake are read-only (jobs tab only).
-- Use only the browser the user chose, `<APPLY_BROWSER>` (see "Which browser" below). With `chrome`, follow "Browser safety" in `<SKILLS_DIR>/job-search/SKILL.md` (pin `<BROWSER_NAME>` by name and device id from `<PRIVATE_DIR>/browsers.json`; stop if it does not match).
+- Use only the browser the user chose, `<APPLY_BROWSER>` (see "Which browser" below). With `chrome`, follow "Browser safety" in `${CLAUDE_PLUGIN_ROOT}/skills/search/SKILL.md` (pin `<BROWSER_NAME>` by name and device id from `<PRIVATE_DIR>/browsers.json`; stop if it does not match).
 - Never overwrite `applied` / `appliedAt` the user already set, and never write to another person's tracker.
 
 ## Files
 
 - Form answers and standing rules: `<PRIVATE_DIR>/apply/profile.md` (read it fully before each application)
-- Workday quirks: `<SKILLS_DIR>/apply/workday.md`, then `<PRIVATE_DIR>/notes/workday.md` (read both for any `*.myworkdayjobs.com` form)
+- Workday quirks: `${CLAUDE_PLUGIN_ROOT}/skills/apply/workday.md`, then `<PRIVATE_DIR>/notes/workday.md` (read both for any `*.myworkdayjobs.com` form)
 - Resumes: attach only from `<JOBS_DIR>/resume/` (versions and when to use each are in `profile.md`)
-- Cover letters: the `cover-letter` skill, output in `<JOBS_DIR>/cover_letters/`
+- Cover letters: the `hayhire:cover-letter` skill, output in `<JOBS_DIR>/cover_letters/`
 - Records: `<JOBS_DIR>/applications/`
-- Tracker page: <TRACKER_URL> (who can read its data is the user's choice, `<TRACKER_SHARING>`; see the `job-agent-setup` skill)
+- Tracker page: <TRACKER_URL> (who can read its data is the user's choice, `<TRACKER_SHARING>`; see the `hayhire:setup` skill)
 
 ## Which browser
 
@@ -36,14 +36,14 @@ description: Fill out a job application in the user's chosen browser (their own 
 
 - `chrome`, but the extension's tools are missing or no browser is connected: stop and say the extension is not connected. Offer to use the built-in browser for this one application; never switch the setting on your own.
 - `none`, or `built-in` with its tools missing (for example the terminal app): say that automatic applying does not work here and stop. Do not fill anything. "submitted" still works, so the user can apply by hand and still log it.
-- Not set: ask which browser to use (the `job-agent-setup` skill explains the choice), and save the answer.
+- Not set (the first application): follow step 7 of the `hayhire:setup` skill ("Browser for applying") to ask where applications are filled in, and save the answer. The same goes for any other answer setup leaves for later (start date, relocation, salary rule, self-identification, cover letters): ask it the first time a form needs it, with clickable options, and save it to `apply/profile.md`.
 
 ## "apply to <MMDD-NN>"
 
 1. Find the job: the `jobs` document whose id starts with `r<MMDD>-<NN>-` (e.g. "1104-02" is `r1104-02-<company>`). If it is already `applied: true`, say so and ask before going on.
 2. Open the job's `url` in the chosen browser. With `chrome`, pin the local browser first and use the tab group (create the group if it is gone, per the browser safety rules). With `built-in`, open it in a new built-in browser tab.
 3. Fill the form from `profile.md`. Ask when a question is not covered; never guess. Salary questions are the exception: suggest a figure as in "Salary questions" below.
-4. Resume: pick it from `<JOBS_DIR>/resume/`. Cover letter: only if the form has a cover letter field, generate it with the `cover-letter` skill. With `chrome`, attach both. With `built-in`, leave the upload fields empty and list them for the user with the full path of each file. If `<PRIVATE_DIR>/cover-letter/facts.json` does not exist, cover letters were skipped in setup: leave the field empty (or skip it if optional) and say so.
+4. Resume: pick it from `<JOBS_DIR>/resume/`. Cover letter: only if the form has a cover letter field, generate it with the `hayhire:cover-letter` skill. With `chrome`, attach both. With `built-in`, leave the upload fields empty and list them for the user with the full path of each file. If `<PRIVATE_DIR>/cover-letter/facts.json` does not exist, cover letters were skipped in setup: leave the field empty (or skip it if optional) and say so.
 5. Essays: use saved answers verbatim where they fit, otherwise draft from the resume and website and flag each draft for their review.
 6. Save a record of the filled form: `<JOBS_DIR>/applications/<Company>_<Role>_Application_Record_<YYYY-MM-DD>.pdf`. If the browser cannot print a PDF, save the same name as `.md` with every question and answer.
 7. Add the job to `<PRIVATE_DIR>/jobs/pending_submit.json` (create it if missing, `chmod 600`): `{"jobsId", "company", "role", "url", "tabId", "filledAt"}`, where `tabId` is the browser tab and `filledAt` is today (YYYY-MM-DD).
@@ -70,7 +70,7 @@ When a form asks for expected or desired pay, fill in a figure that fits this jo
 
 ## Was it submitted? (pending check)
 
-The user does not have to say "submitted". Neither browser tells the agent when Submit is clicked, so it checks later, in this order. Run this check at the start of every `apply` command, every `job-pipeline` command, and at the end of "update history" (the `sync-applications` skill calls it). Skip it when `pending_submit.json` is missing or empty.
+The user does not have to say "submitted". Neither browser tells the agent when Submit is clicked, so it checks later, in this order. Run this check at the start of every `apply` command, every `hayhire:pipeline` command, and at the end of "update history" (the `hayhire:sync` skill calls it). Skip it when `pending_submit.json` is missing or empty.
 
 For each job in `pending_submit.json`:
 

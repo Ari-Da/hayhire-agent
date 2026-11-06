@@ -11,14 +11,13 @@ job.json keys:
   date         optional, defaults to today (e.g. "October 12, 2026")
 Output: <private>/jobs/cover_letters/<Name>_Cover_Letter_<Position>_<Company>.pdf
 Personal details and the fixed paragraphs come from <private>/cover-letter/facts.json.
-<private> is the "private" folder next to this repo, or $JOB_AGENT_PRIVATE.
+<private> is ~/.claude/job-agent-private (made by setup), or $JOB_AGENT_PRIVATE.
 """
 import sys, json, re, subprocess, tempfile, html, os, datetime, pathlib
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-# The skill folder is linked into ~/.claude/skills, so resolve the link to find the repo
-REPO = pathlib.Path(__file__).resolve().parents[2]
-PRIVATE = pathlib.Path(os.environ.get("JOB_AGENT_PRIVATE", REPO.parent / "private")).expanduser()
+# The plugin may run from a cache folder, so find the data through the link setup made
+PRIVATE = pathlib.Path(os.environ.get("JOB_AGENT_PRIVATE", "~/.claude/job-agent-private")).expanduser().resolve()
 OUT_DIR = PRIVATE / "jobs" / "cover_letters"
 FACTS = json.loads((PRIVATE / "cover-letter" / "facts.json").read_text())
 TEMPLATE = pathlib.Path(__file__).with_name("template.html")

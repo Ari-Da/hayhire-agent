@@ -1,21 +1,22 @@
 #!/bin/sh
-# Removes the job agent from Claude Code: the skill links and the link to the
-# private folder that install.sh made. It can back up your data first, and
-# move the whole job-agent folder to the Trash.
+# Removes HayHire from Claude Code: the plugin, the link to your private
+# folder, and links left by older installs. It can back up your data first,
+# and move your job-agent folder to the Trash.
 #
-# Usage: ./uninstall.sh                 asks about backup and the folder
-#        ./uninstall.sh --backup        back up first (default when not asked)
-#        ./uninstall.sh --no-backup     skip the backup
-#        ./uninstall.sh --delete-folder also move the job-agent folder to the Trash
-#        ./uninstall.sh --keep-folder   keep the folder (default)
+# Usage: sh uninstall.sh                 asks about backup and the folder
+#        sh uninstall.sh --backup        back up first (default when not asked)
+#        sh uninstall.sh --no-backup     skip the backup
+#        sh uninstall.sh --delete-folder also move your job-agent folder to the Trash
+#        sh uninstall.sh --keep-folder   keep the folder (default)
 #
-# Your tracker page on claude.ai is not touched. Saying "uninstall job agent"
+# Your tracker page on claude.ai is not touched. Saying "uninstall hayhire"
 # to Claude does all of this, and can export and delete the tracker page too.
 set -e
-ROOT="$(cd "$(dirname "$0")" && pwd)"
-BASE="$(dirname "$ROOT")"
-PRIVATE="$BASE/private"
-SKILLS="job-agent-setup job-search apply cover-letter sync-applications job-pipeline"
+ROOT="$(cd "$(dirname "$0")" && pwd -P)"
+LINK="$HOME/.claude/job-agent-private"
+SKILLS="$HOME/.claude/skills"
+# Skill names used by HayHire before it became a plugin
+OLD_SKILLS="job-agent-setup job-search apply cover-letter sync-applications job-pipeline"
 
 backup=""
 delete_folder=""
@@ -30,6 +31,11 @@ for arg in "$@"; do
   esac
 done
 
+PRIVATE=""
+[ -d "$LINK" ] && PRIVATE="$(cd "$LINK" && pwd -P)"
+BASE=""
+[ -n "$PRIVATE" ] && BASE="$(dirname "$PRIVATE")"
+
 # ask "question" default -> prints yes/no; asks only in a terminal
 ask() {
   if [ -t 0 ]; then
@@ -42,48 +48,75 @@ ask() {
 }
 
 [ -n "$backup" ] || backup=$(ask "Back up your data first? [Y/n]" yes)
-[ -n "$delete_folder" ] || delete_folder=$(ask "Also move the folder $BASE to the Trash? [y/N]" no)
-
-if [ "$backup" = yes ] && [ -d "$PRIVATE" ]; then
-  "$ROOT/backup.sh"
+if [ -z "$delete_folder" ] && [ -n "$BASE" ]; then
+  delete_folder=$(ask "Also move your data folder $BASE to the Trash? [y/N]" no)
 fi
 
-for skill in $SKILLS; do
-  link="$HOME/.claude/skills/$skill"
-  if [ -L "$link" ]; then
-    case "$(readlink "$link")" in
-      "$ROOT"/*) rm "$link"; echo "Removed skill $skill" ;;
-      *) echo "Left skill $skill: it points to $(readlink "$link"), not to this copy" ;;
-    esac
-  elif [ -e "$link" ]; then
-    echo "Left skill $skill: it is not a link made by install.sh"
+if [ "$backup" = yes ] && [ -n "$PRIVATE" ]; then
+  sh "$ROOT/backup.sh"
+fi
+
+# is_hayhire link -> true for a broken link or a link into a HayHire copy
+is_hayhire() {
+  [ ! -e "$1" ] && return 0
+  grep -q "job-agent-private" "$1/SKILL.md" 2>/dev/null && return 0
+  grep -q '"name": "hayhire"' "$1/.claude-plugin/plugin.json" 2>/dev/null
+}
+
+# Links from older installs (one link per skill), and the skills-folder link
+# made by install.sh. Only links into a HayHire copy are removed.
+for skill in $OLD_SKILLS hayhire; do
+  link="$SKILLS/$skill"
+  [ -L "$link" ] || continue
+  target="$(readlink "$link")"
+  if is_hayhire "$link"; then
+    rm "$link"
+    echo "Removed the link $link"
+  else
+    echo "Left $link: it points to $target, which is not HayHire"
   fi
 done
 
-link="$HOME/.claude/job-agent-private"
-if [ -L "$link" ] && [ "$(readlink "$link")" = "$PRIVATE" ]; then
-  rm "$link"
+if [ -L "$LINK" ]; then
+  rm "$LINK"
   echo "Removed the private folder link"
 fi
 
-if [ "$delete_folder" = yes ]; then
-  if [ "$BASE" = "$HOME" ] || [ "$BASE" = "/" ] || [ ! -d "$BASE/public" ]; then
-    echo "Not moving $BASE: it is not a job-agent folder with public/ inside. Delete it yourself if you meant to."
-  elif [ -d "$HOME/.Trash" ]; then
-    dest="$HOME/.Trash/$(basename "$BASE")-$(date +%Y-%m-%d-%H%M%S)"
-    mv "$BASE" "$dest"
-    echo "Moved $BASE to the Trash"
+if [ "$delete_folder" = yes ] && [ -n "$BASE" ]; then
+  # Move the whole folder only if it holds nothing but HayHire's own parts;
+  # otherwise move just the private folder.
+  others="$(ls -A "$BASE" | grep -vxE 'private|public|email_fetcher|\.DS_Store' || true)"
+  if [ "$BASE" = "$HOME" ] || [ "$BASE" = "/" ] || [ -n "$others" ]; then
+    what="$PRIVATE"
   else
-    echo "No Trash folder found: delete $BASE yourself."
+    what="$BASE"
+  fi
+  if [ -n "$what" ] && [ -d "$HOME/.Trash" ]; then
+    mv "$what" "$HOME/.Trash/$(basename "$what")-$(date +%Y-%m-%d-%H%M%S)"
+    echo "Moved $what to the Trash"
+    [ "$what" = "$PRIVATE" ] && [ -n "$others" ] && echo "Left $BASE: it holds other files too."
+  elif [ -n "$what" ]; then
+    echo "No Trash folder found: delete $what yourself."
   fi
 fi
 
-cat <<'EOF'
+# The plugin itself, if it was installed from the marketplace. Last, since
+# this script may be running from the plugin's own folder.
+if command -v claude > /dev/null 2>&1 && claude plugin list 2>/dev/null | grep -q "hayhire@hayhire"; then
+  claude plugin uninstall hayhire@hayhire && echo "Uninstalled the HayHire plugin"
+  claude plugin marketplace remove hayhire > /dev/null 2>&1 || true
+  plugin_left=""
+else
+  plugin_left="- The plugin, if it was installed from the marketplace: run
+  claude plugin uninstall hayhire@hayhire   (or /plugin in Claude Code)"
+fi
+
+cat <<EOF
 
 Done. Left for you (the script cannot do these):
+$plugin_left
 - Tracker page: delete it in your claude.ai artifacts if you no longer need it.
 - Gmail: remove the app's access at https://myaccount.google.com/permissions
 - Claude Code memory for this project: ~/.claude/projects/<folder name>/
-To set up again: clone the repo, run ./public/install.sh, then say
-"restore my job data" in Claude.
+To set up again: install the plugin, then say "restore my job data" in Claude.
 EOF

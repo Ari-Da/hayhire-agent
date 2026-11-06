@@ -12,22 +12,30 @@
 # restore. The tracker page itself lives on claude.ai; ask Claude to "back up
 # my job data" to export its rows into private/backup/tracker/ first.
 #
-# Usage: ./backup.sh            (archive goes to ~/hayhire-backups)
-#        HAYHIRE_BACKUP_DIR=/some/dir ./backup.sh
+# Usage: sh backup.sh            (archive goes to ~/hayhire-backups)
+#        HAYHIRE_BACKUP_DIR=/some/dir sh backup.sh
 set -e
-ROOT="$(cd "$(dirname "$0")" && pwd)"
-BASE="$(dirname "$ROOT")"
+LINK="$HOME/.claude/job-agent-private"
 BACKUP_DIR="${HAYHIRE_BACKUP_DIR:-$HOME/hayhire-backups}"
 
-if [ ! -d "$BASE/private" ]; then
-  echo "No private folder at $BASE/private: nothing to back up."
+if [ ! -d "$LINK" ]; then
+  echo "No private folder linked at $LINK: nothing to back up."
   exit 1
 fi
+PRIVATE="$(cd "$LINK" && pwd -P)"
+BASE="$(dirname "$PRIVATE")"
 
-items="private"
-for f in email_fetcher/data email_fetcher/settings.json email_fetcher/credentials.json; do
-  [ -e "$BASE/$f" ] && items="$items $f"
-done
+# The email fetcher's folder, from config.json (default: next to private/)
+EMAIL="$(sed -n 's/.*"EMAIL_FETCHER_DIR"[^"]*"\([^"]*\)".*/\1/p' "$PRIVATE/config.json" 2>/dev/null)"
+case "$EMAIL" in "~"/*) EMAIL="$HOME/${EMAIL#\~/}" ;; "") EMAIL="$BASE/email_fetcher" ;; esac
+
+items="$(basename "$PRIVATE")"
+if [ "$(dirname "$EMAIL")" = "$BASE" ]; then
+  name="$(basename "$EMAIL")"
+  for f in data settings.json credentials.json; do
+    [ -e "$EMAIL/$f" ] && items="$items $name/$f"
+  done
+fi
 
 umask 077
 mkdir -p "$BACKUP_DIR"
@@ -35,11 +43,11 @@ chmod 700 "$BACKUP_DIR"
 out="$BACKUP_DIR/hayhire-backup-$(date +%Y-%m-%d-%H%M%S).tar.gz"
 
 # shellcheck disable=SC2086
-tar -czf "$out" -C "$BASE" --exclude '__pycache__' --exclude '.DS_Store' $items
+tar -czf "$out" -C "$BASE" --exclude '__pycache__' --exclude '.DS_Store' --exclude 'token*.json' $items
 tar -tzf "$out" > /dev/null
 chmod 600 "$out"
 
-if [ -d "$BASE/private/backup/tracker" ]; then
+if [ -d "$PRIVATE/backup/tracker" ]; then
   tracker="includes the tracker export"
 else
   tracker="no tracker export: ask Claude to \"back up my job data\" to include the tracker rows"

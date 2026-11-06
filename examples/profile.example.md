@@ -1,6 +1,6 @@
 # Application profile (example, made-up values)
 
-Copy to `private/apply/profile.md` (install.sh does this) and replace every value. The private folder is outside the repo.
+Copy to `private/apply/profile.md` (setup does this) and replace every value. The private folder is outside the repo.
 
 ## Contact
 - First name: Alex | Last name: Rivera
@@ -28,6 +28,7 @@ Copy to `private/apply/profile.md` (install.sh does this) and replace every valu
 - Rule: suggest a figure for each job (the default), never below $90,000 a year.
 
 ## Preferences
+- Start date: after a 2-week notice (forms asking for a date: two weeks after the application date)
 - Office preference order: 1) New York 2) San Francisco 3) Seattle
 - Willing to relocate / work in office: Yes
 - How did you hear about this job: the company's careers page

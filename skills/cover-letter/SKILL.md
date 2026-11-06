@@ -1,16 +1,16 @@
 ---
 name: cover-letter
-description: Generate a tailored one-page cover letter PDF for a specific job posting in the user's fixed layout, saved to <JOBS_DIR>/cover_letters. Use when the user asks for a cover letter for a job, or when an application form needs a cover letter upload.
+description: HayHire: Generate a tailored one-page cover letter PDF for a specific job posting in the user's fixed layout, saved to <JOBS_DIR>/cover_letters. Use when the user asks for a cover letter for a job, or when an application form needs a cover letter upload.
 ---
 
 # Cover Letter Generator
 
 ## Setup (read first)
 
-1. Read `~/.claude/job-agent-private/config.json` (a link to the `private` folder next to this repo, made by `install.sh`). Every `<NAME>` placeholder in this skill is a value from it (`<TRACKER_URL>`, `<PRIVATE_DIR>`, `<JOBS_DIR>`, ...). Stop and ask if it is missing.
+1. Read `~/.claude/job-agent-private/config.json` (a link to the user's private folder, made by the `hayhire:setup` skill). Every `<NAME>` placeholder in this skill is a value from it (`<TRACKER_URL>`, `<PRIVATE_DIR>`, `<JOBS_DIR>`, ...). If it is missing, HayHire is not set up yet: offer to run `hayhire:setup`.
 2. Read `<PRIVATE_DIR>/notes/cover-letter.md` if it exists: the user's own rules for this skill. They add to this file and win where they disagree.
 
-Produces a PDF in a fixed layout: header, contact bar, "Cover Letter" heading. Personal details and the fixed paragraphs come from `<PRIVATE_DIR>/cover-letter/facts.json` (see `examples/facts.example.json` in the repo). Only a few parts change per job.
+Produces a PDF in a fixed layout: header, contact bar, "Cover Letter" heading. Personal details and the fixed paragraphs come from `<PRIVATE_DIR>/cover-letter/facts.json` (see `${CLAUDE_PLUGIN_ROOT}/examples/facts.example.json`). Only a few parts change per job.
 
 ## What changes per job
 
@@ -45,7 +45,7 @@ The header, "Dear Hiring Team,", **paragraph 2** (the `experience` paragraph in 
    - `mission`: phrase completing "...has toward ..."
    - `para3`: the full text of paragraph 3
    - `date`: optional; defaults to today
-2. Run: `python3 <SKILLS_DIR>/cover-letter/make_cover_letter.py job.json`
+2. Run: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/cover-letter/make_cover_letter.py job.json`
    (needs Google Chrome installed; it prints the PDF path; an internet connection loads the Carlito font).
 3. Open the PDF and check it: one page, bold RE title, no leftover `{{...}}` placeholders, company name spelled correctly everywhere.
 4. Tell the user the file path and show them paragraphs 1 and 3 for review before it is uploaded anywhere.
