@@ -14,11 +14,11 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 *All names, companies and numbers below are sample data.*
 
-<p><b>1. Set up once</b>: your resume plus a few clicks becomes your profile</p>
+<p><b>1. Set up once</b>: share your resume, confirm what it found with a click, and your private tracker is created</p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-0-setup.png">
-  <img src="docs/images/light-0-setup.png" alt="setup: the agent reads the resume and asks roles, locations and sponsorship as clickable questions" width="100%">
+  <img src="docs/images/light-0-setup.png" alt="setup: the agent reads the resume, shows the contact details in a question to confirm, and creates the tracker" width="100%">
 </picture>
 
 <br>
@@ -27,7 +27,7 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-1-job-search.png">
-  <img src="docs/images/light-1-job-search.png" alt="job-search: Claude Code finds new jobs and adds them to the tracker" width="100%">
+  <img src="docs/images/light-1-job-search.png" alt="hayhire:search: Claude Code finds new jobs and adds them to the tracker" width="100%">
 </picture>
 
 <br>
@@ -36,7 +36,7 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-2-apply.png">
-  <img src="docs/images/light-2-apply.png" alt="apply: the agent fills the application form and stops before Submit" width="100%">
+  <img src="docs/images/light-2-apply.png" alt="hayhire:apply: the agent fills the application form and stops before Submit" width="100%">
 </picture>
 
 <br>
