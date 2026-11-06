@@ -48,15 +48,6 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
   <img src="docs/images/light-3-history.png" alt="Application History page with stats and every application" width="100%">
 </picture>
 
-<br>
-
-<p><b>5. Outreach</b>: recruiter emails and who wrote back</p>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-4-outreach.png">
-  <img src="docs/images/light-4-outreach.png" alt="Recruiter Outreach page with reply rate" width="100%">
-</picture>
-
 ## How it fits together
 
 ```mermaid
@@ -101,7 +92,6 @@ The `hayhire:pipeline` skill (`skills/pipeline`) is the harness. It does not do 
 | 3. Submit | the person, by hand | clicks Submit | |
 | 4. Record it | `hayhire:apply` | "submitted", or found by itself on the next command (confirmation page) or after "update history" (confirmation email) | `applied` on the job, a history row |
 | 5. Confirm from email | `hayhire:sync` | "update history" | history rows (merge, never delete) |
-| 6. Recruiter stats | `hayhire:sync` | "update outreach" | outreach rows |
 
 It also answers "pipeline status" and "next". See [harness/README.md](harness/README.md).
 
@@ -113,7 +103,7 @@ It also answers "pipeline status" and "next". See [harness/README.md](harness/RE
 - **One writer per collection.** Job search adds jobs, the apply skill marks them and logs submissions, and the email sync only merges into the history. Nothing deletes history rows except the person, by hand.
 - **Personal salary answers.** When a form asks for expected pay, `apply` fills in a figure for that job and that person, and explains it in a couple of lines. It starts from the posting's pay range (or public pay data for the same role and city when none is posted), then places the person in it by fit: their experience from the resume against the job's requirements and day-to-day responsibilities. There is no default to the low end, and the figure never goes outside the posted range. A salary rule saved at setup, such as a floor, always wins, and the person can change the figure before submitting.
 - **Merge-only sync.** Confirmation emails are matched to logged submissions by company (subsidiaries included), role and date. Unclear matches go to a needs-review list instead of being guessed, and a status only ever moves forward.
-- **Privacy first.** Gmail access is read-only and the scope is checked on every token. Recruiter emails are classified by a small local model (Ollama, `llama3.2:3b`), so email text never leaves the machine.
+- **Privacy first.** Gmail access is read-only and the scope is checked on every token. Emails are read by local scripts, so email text is never sent to the tracker or published.
 
 More in [docs/design-decisions.md](docs/design-decisions.md).
 
@@ -225,7 +215,7 @@ apply to 1104-02            # fill job 1104-02 (salary suggested and explained) 
 submitted                   # record it and add it to the history
 update history              # read Gmail and merge new responses
 pipeline status             # where everything stands
-back up my job data         # export jobs, applications and outreach, pack your private data
+back up my job data         # export your jobs and applications, pack your private data
 uninstall hayhire           # optional backup, then remove the plugin
 restore my job data         # bring a backup back after reinstalling
 change my search            # change roles, places, or how recent postings must be
@@ -256,8 +246,8 @@ The tracker page is yours, and so is the choice of who sees it. It starts **priv
 | Setting | Someone you share the link with sees |
 |---|---|
 | `private` *(default)* | the page, with no data |
-| `applications` | jobs, application history and charts; recruiter outreach stays yours |
-| `everything` | all of it, recruiter outreach included |
+| `applications` | jobs, application history and charts |
+| `everything` | all of the tracker's data |
 
 The setting becomes the page's database access rules, so the database enforces it; the data is not just hidden on the page. Rules cover whole tables, not single fields: shared history rows include the Gmail account address and a Gmail link (the link only opens for someone signed in to that mailbox). Share only with people you trust.
 
@@ -277,7 +267,7 @@ restore my job data       # after installing the plugin again: bring it all back
 
 | Part | Where it comes from |
 |---|---|
-| Jobs, application history, recruiter outreach | the tracker page on claude.ai, exported by Claude (Insights is drawn from these rows) |
+| Jobs and application history | the tracker page on claude.ai, exported by Claude (Insights is drawn from these rows) |
 | Your answers, notes, resumes, cover letters and application records | `private/` |
 | Email tracking state and settings | `email_fetcher/data/`, `settings.json`, `credentials.json` |
 

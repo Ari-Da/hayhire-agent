@@ -185,7 +185,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
 <nav class="area-switch" aria-label="Page area">
   <button type="button" class="area-btn" id="area-btn-search" aria-pressed="true">Job Search</button>
   <button type="button" class="area-btn" id="area-btn-history" aria-pressed="false">Application History</button>
-  <button type="button" class="area-btn" id="area-btn-outreach" aria-pressed="false">Recruiter Outreach</button>
+  <button type="button" class="area-btn" id="area-btn-outreach" aria-pressed="false" hidden>Recruiter Outreach</button>
 </nav>
 <main>
   <header>
@@ -455,8 +455,14 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
 })();
 </script>
 <script>
+// Recruiter Outreach is not part of HayHire yet: hidden unless this is set to true.
+window.SHOW_OUTREACH = {{SHOW_OUTREACH}};
 (function () {
-  var areas = { search: document.querySelector('main'), history: document.getElementById('area-history'), outreach: document.getElementById('area-outreach') };
+  var areas = { search: document.querySelector('main'), history: document.getElementById('area-history') };
+  if (window.SHOW_OUTREACH === true) {
+    areas.outreach = document.getElementById('area-outreach');
+    document.getElementById('area-btn-outreach').hidden = false;
+  }
   function show(area) {
     Object.keys(areas).forEach(function (name) {
       areas[name].hidden = name !== area;
@@ -635,6 +641,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
 </script>
 <script>
 (function () {
+  if (window.SHOW_OUTREACH !== true) return;
   var body = document.getElementById('outreach-body');
   var STATUS = { replied: ['Replied', ' ok'], 'no reply': ['No reply', ''], bounced: ['Bounced', ' warn'] };
   function h(tag, attrs) {

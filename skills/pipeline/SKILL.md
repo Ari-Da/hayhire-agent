@@ -19,7 +19,7 @@ The pipeline connects four skills. Each keeps its own job; this skill decides wh
 | 3. Submit | the user, by hand | they click Submit | |
 | 4. Record it | `apply` | "submitted" / "applied" | `jobs.applied`, `appliedAt`; a `skill-...` row in `email_applications` |
 | 5. Confirm from email | `hayhire:sync` | "update history" | `email_applications` (merge, never delete) |
-| 6. Recruiter stats | `hayhire:sync` | "update outreach" | `recruiter_outreach` |
+| 6. Recruiter stats (only if `<OUTREACH>` is `true`; otherwise skip this step and never mention it) | `hayhire:sync` | "update outreach" | `recruiter_outreach` |
 
 ## Commands
 

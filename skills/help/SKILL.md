@@ -43,7 +43,6 @@ Say any command in plain words, or type its shortcut.
 | Command | What it does | Shortcut |
 |---|---|---|
 | `update history` | Read your application emails and update the history | `/hayhire:sync` |
-| `update outreach` | Refresh recruiter outreach stats | |
 | `pipeline status` | Where everything stands, and what to do next | `/hayhire:pipeline` |
 
 ### Your data

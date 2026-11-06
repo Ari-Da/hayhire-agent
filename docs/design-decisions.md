@@ -15,8 +15,5 @@ When the person says "submitted", the apply skill adds the application to the hi
 ## A local copy instead of downloads
 The sync compares results against a local copy of the page's rows, updated only through its own writes. Every write carries the row's version, so a row edited by hand is refused instead of overwritten.
 
-## Recruiter emails: rules, then a local model
-Keyword search finds candidates, rules drop the obvious misses (automated senders, hiring systems, universities, interview threads, mass mail), and a small local model sorts the rest into categories. Asking for a category worked far better than a yes-or-no question with a 3B model. Email text never leaves the computer.
-
 ## Read-only by construction
-Gmail tokens are checked for the read-only scope before use, and tests fail if any code calls send, delete or modify. Only the draft step holds compose access.
+Gmail tokens are checked for the read-only scope before use, and tests fail if any code calls send, delete or modify.

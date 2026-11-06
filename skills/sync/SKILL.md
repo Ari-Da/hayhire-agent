@@ -1,6 +1,6 @@
 ---
 name: sync
-description: HayHire: Refresh the user's application history and recruiter outreach stats from Gmail and sync them to the tracker page. Use when asked to update, sync or refresh the application history or recruiter outreach pages.
+description: HayHire: Refresh the user's application history from Gmail and sync it to the tracker page. Use when asked to update, sync or refresh the application history or recruiter outreach pages.
 ---
 
 # Sync application history
@@ -27,6 +27,9 @@ Rules: never access Gmail directly; only the scripts read it, read-only. Only wr
 8. Report the totals: applications, rejected, no response, still waiting, needs review.
 9. Run the `hayhire:apply` skill's pending check ("Was it submitted?"). New confirmation emails can show that a filled form was submitted; that check, not this skill, marks the job applied.
 
-## Recruiter outreach (`recruiter_outreach`)
+## Recruiter outreach (`recruiter_outreach`), only if `<OUTREACH>` is `true`
+
+Recruiter outreach is not part of HayHire yet. When `OUTREACH` in `config.json` is missing or `false`, never run this part, never write `recruiter_outreach`, and do not mention outreach to the user.
+
 
 Same steps with `venv/bin/python run.py outreach`, collection `recruiter_outreach`, folder `data/sync/outreach` (local copy in `data/sync/outreach/mirror/recruiter_outreach`), and `outreach` added to each `sync_prepare.py` command. This collection mirrors the results, so its plan can delete rows.

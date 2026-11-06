@@ -10,5 +10,6 @@
   "HARNESS_START_DATE": "2026-01-01",
   "GRAD_DATE": "May 2028",
   "ALT_GRAD_DATE": "",
-  "INTERN_YEAR": "2028"
+  "INTERN_YEAR": "2028",
+  "OUTREACH": false
 }
