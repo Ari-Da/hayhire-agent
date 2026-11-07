@@ -226,6 +226,27 @@ help                        # list every command and what it does (/hayhire:help
 
 These are the same with or without the plugin name. If another job kit is also installed and the wrong skill answers, start with "hayhire" ("hayhire, apply to 1104-02") or use the `/hayhire:` command.
 
+## How much usage does it take?
+
+Measured from real runs, each counted as if started in a new Claude Code chat. The share of a 5-hour session is a rough estimate: Anthropic gives plan limits only as approximate prompts per session, and a HayHire command is longer than a typical prompt.
+
+| Command | New tokens (written, or read for the first time) | Cached re-reads (about 1/10 the price) | Pro, share of a 5-hour session | Max 5x | Max 20x |
+|---|---|---|---|---|---|
+| `run a job for 10` | ~100k – 230k | ~0.9M – 1.5M | ~5–15% | ~1–3% | < 1% |
+| `run a job for 5` | ~120k | ~1.8M | ~5–15% | ~1–3% | < 1% |
+| `job run startup 7` | ~85k | ~0.9M | ~4–10% | ~1–2% | < 1% |
+| `apply to <job>`, typical form | ~65k | ~0.3M – 0.8M | ~3–8% | ~0.5–1.5% | < 0.5% |
+| `apply to <job>`, long multi-page form | ~105k | ~2.5M | ~8–15% | ~2–3% | < 1% |
+| `update history` (estimate, not yet measured) | small | small | ~1–3% | < 1% | < 0.2% |
+
+- Much of the work runs on your own machine, not in the model: careers sites' public job data is fetched directly, and Gmail is read by a local Python script, so emails never pass through Claude.
+- The number of jobs barely changes the cost. Searching the sources and checking each posting on the company's own site costs about the same for 5 jobs or 10.
+- Claude Code caches the conversation, so the part re-sent at each step costs about a tenth of normal input.
+- The weekly limit is used far less, since it covers many sessions. Opus uses a plan's limit faster than Sonnet, so expect the high end of each range on Opus.
+- Start each search or batch of applications in a new chat: a long chat re-sends more at every step. Your own figures are under **Settings → Usage**.
+
+These come from one or two runs per command, so they are ranges, not averages.
+
 ## Tests
 
 The Python lives in email_fetcher:
