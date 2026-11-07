@@ -54,6 +54,13 @@ Say any command in plain words, or type its shortcut.
 | `restore my job data` | Bring a backup back | |
 | `uninstall hayhire` | Optional backup, then remove HayHire | |
 
+### Updates
+
+| Command | What it does | Shortcut |
+|---|---|---|
+| `/plugin` → Installed → HayHire → Update | Get the newest HayHire, in a Claude Code chat. In a terminal: `claude plugin update hayhire@hayhire` | |
+| `/reload-plugins` | Load the update into this chat, so you don't need a new one | |
+
 ### Help
 
 | Command | What it does | Shortcut |

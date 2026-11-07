@@ -212,7 +212,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
   <div class="controls" id="controls">
     <div class="chips" id="types" role="group" aria-label="Job type"></div>
     <label class="toggle">Sort <select class="select" id="sort" aria-label="Sort jobs">
-      <option value="default">Run order</option><option value="new">Posted: newest first</option><option value="old">Posted: oldest first</option></select></label>
+      <option value="default">Run order</option><option value="new">Posted: newest first</option><option value="old">Posted: oldest first</option><option value="todo">Not applied first</option><option value="done">Applied first</option></select></label>
     <input class="search" id="q" type="search" placeholder="Search number, title, company or location" aria-label="Search jobs">
     <label class="toggle"><input type="checkbox" id="hide"> Hide applied</label>
   </div>
@@ -277,6 +277,10 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
     });
     if (state.sort !== 'default') {
       out = out.slice().sort(function (a, b) {
+        if (state.sort === 'todo' || state.sort === 'done') {
+          var d = (a.applied ? 1 : 0) - (b.applied ? 1 : 0);
+          return (state.sort === 'todo' ? d : -d) || (a.order || 0) - (b.order || 0);
+        }
         var x = postedKey(a), y = postedKey(b);
         if (!x && !y) return (a.order || 0) - (b.order || 0);
         if (!x) return 1; if (!y) return -1;
