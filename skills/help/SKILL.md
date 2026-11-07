@@ -35,6 +35,7 @@ Say any command in plain words, or type its shortcut.
 | Command | What it does | Shortcut |
 |---|---|---|
 | `apply to 1104-02` | Fill job 1104-02 in your browser and stop before Submit | `/hayhire:apply 1104-02` |
+| `printout 1104-02` | Save a PDF of the filled form before you submit. The code is shown on the form's tab; a company name works too: `printout Stripe backend` | |
 | `submitted` | Record the application you just sent | |
 | `cover letter for 1104-02` | Write a one-page cover letter | `/hayhire:cover-letter` |
 

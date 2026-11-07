@@ -1,6 +1,6 @@
 ---
 name: apply
-description: HayHire: Fill out a job application in the user's chosen browser (their own Chrome with Claude in Chrome, or the Claude app's built-in browser) from their saved profile, save a PDF record, and after they submit, mark the job applied and add it to the Application History page. Use when the user says "apply to <job number>" (e.g. "apply to 1104-02"), "printout", or "submitted" / "applied" for a job.
+description: HayHire: Fill out a job application in the user's chosen browser (their own Chrome with Claude in Chrome, or the Claude app's built-in browser) from their saved profile, save a PDF record, and after they submit, mark the job applied and add it to the Application History page. Use when the user says "apply to <job number>" (e.g. "apply to 1104-02"), "printout" (optionally with a job number or company and role, e.g. "printout 1104-02", "printout Stripe backend"), or "submitted" / "applied" for a job.
 ---
 
 # Apply
@@ -42,12 +42,37 @@ description: HayHire: Fill out a job application in the user's chosen browser (t
 
 1. Find the job: the `jobs` document whose id starts with `r<MMDD>-<NN>-` (e.g. "1104-02" is `r1104-02-<company>`). If it is already `applied: true`, say so and ask before going on.
 2. Open the job's `url` in the chosen browser. With `chrome`, pin the local browser first and use the tab group (create the group if it is gone, per the browser safety rules). With `built-in`, open it in a new built-in browser tab.
+   Then label the tab with the job code (see "Job code on the tab" below), so the user can say "printout <job code>" without checking the tracker.
 3. Fill the form from `profile.md`. Ask when a question is not covered; never guess. Salary questions are the exception: suggest a figure as in "Salary questions" below.
 4. Resume: pick it from `<JOBS_DIR>/resume/`. Cover letter: only if the form has a cover letter field, generate it with the `hayhire:cover-letter` skill. With `chrome`, attach both. With `built-in`, leave the upload fields empty and list them for the user with the full path of each file. If `<PRIVATE_DIR>/cover-letter/facts.json` does not exist, cover letters were skipped in setup: leave the field empty (or skip it if optional) and say so.
 5. Essays: use saved answers verbatim where they fit, otherwise draft from the resume and website and flag each draft for their review.
 6. Save a record of the filled form: `<JOBS_DIR>/applications/<Company>_<Role>_Application_Record_<YYYY-MM-DD>.pdf`. If the browser cannot print a PDF, save the same name as `.md` with every question and answer.
 7. Add the job to `<PRIVATE_DIR>/jobs/pending_submit.json` (create it if missing, `chmod 600`): `{"jobsId", "company", "role", "url", "tabId", "filledAt"}`, where `tabId` is the browser tab and `filledAt` is today (YYYY-MM-DD).
 8. Stop and tell them the form is ready to review and submit, listing anything left blank, every drafted essay, the salary figure with its reasons, and (with `built-in`) the files they need to upload. Add one line: Say "submitted" when done, or just carry on and I'll check the tab next time.
+
+## Job code on the tab
+
+Show the job's code (`MMDD-NN`, e.g. `1104-02`) on the tab the agent fills, so the user can see which tracker job it is and say "printout 1104-02". Run this script in the tab (Claude in Chrome's JavaScript tool, or the built-in browser's if it has one), with `CODE`, `COMPANY` and `ROLE` filled in:
+
+```js
+(() => {
+  const code = "CODE", label = `${code} · COMPANY – ROLE`;
+  if (!document.title.startsWith(code)) document.title = `${code} · ${document.title || label}`;
+  if (!document.getElementById("hayhire-code")) {
+    const tag = document.createElement("div");
+    tag.id = "hayhire-code";
+    tag.textContent = `HayHire ${code}`;
+    tag.title = `Say "printout ${code}" to save this form as a PDF`;
+    tag.style.cssText = "position:fixed;top:8px;right:8px;z-index:2147483647;padding:4px 8px;border-radius:6px;background:#1f2937;color:#fff;font:600 12px/1.3 system-ui,sans-serif;opacity:.85;pointer-events:none";
+    document.body.appendChild(tag);
+  }
+})();
+```
+
+- The title and the corner label only change what the user sees. They are not part of the form, `pointer-events:none` keeps the label from blocking clicks, and nothing is sent with the application.
+- Run it again after every page change (multi-page forms such as Workday reload between steps), and right before "printout" so the code is on the record too.
+- If the site blocks scripts, skip it silently and keep filling; give the code in the "ready to review" message instead.
+- Never change anything else on the page this way: form fields are filled only through the normal browser tools.
 
 ## Salary questions
 
@@ -81,9 +106,18 @@ For each job in `pending_submit.json`:
 
 Report in one line what was logged and how ("1104-02: confirmation page", "1104-05: confirmation email"), and say nothing when nothing changed. Never mark a job applied from a guess.
 
-## "printout"
+## "printout" / "printout <job>"
 
-Save or refresh the PDF record of the current form (step 6).
+Save a record of a filled form as it looks right now, usually after the user has reviewed or edited it and before they click Submit. It captures the page, not `profile.md`, so the user's own changes are in it.
+
+1. **Find the job.** The user can name it in any of these ways:
+   - a job code from the tracker (`1104-02`): the `jobs` document whose id starts with `r1104-02-`;
+   - a company, optionally with the role (`printout Stripe`, `printout Stripe backend engineer`): match the company the same way as "submitted" step 3 (ignore "Inc", "LLC", " (Tier N)"), and the role loosely on the title;
+   - nothing (`printout`): the form filled most recently in this session, or the only job in `pending_submit.json`.
+   Look in `pending_submit.json` first (forms that are filled and waiting), then the `jobs` rows. If several jobs match, ask which one with clickable options ("<company> — <role> (<job code>)"). If none match, say so and list the jobs waiting in `pending_submit.json`.
+2. **Find its tab:** by `tabId` from `pending_submit.json`, otherwise by a tab whose title starts with the job code (see "Job code on the tab"), otherwise by the job's `url` in this session's tabs (with `chrome`, pin the local browser first). If the tab is gone, say so and offer to open the job again with "apply to <job code>"; never print another page instead.
+3. **Save it** as in step 6: `<JOBS_DIR>/applications/<Company>_<Role>_Application_Record_<YYYY-MM-DD>.pdf`, replacing an earlier record of the same job from today. Scroll through the whole form first so every section is loaded, and add the job code label again if the page has changed, so it shows on the record. If the browser cannot print a PDF, save the `.md` record with every question and the answer now on the page.
+4. Reply in one line with the file's full path. Do not click anything on the form.
 
 ## "submitted" / "applied"
 

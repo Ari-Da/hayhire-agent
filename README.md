@@ -41,7 +41,7 @@ This repo holds the skills and the harness. The Gmail side lives in its own repo
 
 <br>
 
-<p><b>4. Track</b>: replies read from email, merged, never deleted</p>
+<p><b>4. Track</b>: replies read from email, merged, never deleted; filter by status, type and date applied (last 14, 30 or 90 days)</p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/dark-3-history.png">
@@ -88,7 +88,7 @@ The `hayhire:pipeline` skill (`skills/pipeline`) is the harness. It does not do 
 | Step | Skill | Trigger | Writes |
 |---|---|---|---|
 | 1. Find jobs | `hayhire:search` | "run a job for 15" | new `jobs` rows |
-| 2. Fill an application | `hayhire:apply` | "apply to 1104-02" | nothing |
+| 2. Fill an application | `hayhire:apply` | "apply to 1104-02"; "printout 1104-02" saves a PDF before Submit | a PDF record |
 | 3. Submit | the person, by hand | clicks Submit | |
 | 4. Record it | `hayhire:apply` | "submitted", or found by itself on the next command (confirmation page) or after "update history" (confirmation email) | `applied` on the job, a history row |
 | 5. Confirm from email | `hayhire:sync` | "update history" | history rows (merge, never delete) |
@@ -97,6 +97,7 @@ It also answers "pipeline status" and "next". See [harness/README.md](harness/RE
 
 ## Design decisions
 
+- **The job code is on the tab.** The tab being filled shows the tracker code in its title and in a small corner label ("HayHire 1104-02"), so "printout 1104-02" needs no trip to the tracker. Only the display changes; nothing is added to the form.
 - **Human in the loop.** The agent never clicks Submit, never accepts terms or consent boxes, never creates accounts and never types passwords. LinkedIn and Handshake are read-only.
 - **Verified, not scraped.** Every job is confirmed open on the company's own careers site or ATS (Greenhouse, Ashby, Workday APIs), deduplicated across runs, and filtered by sponsorship and graduation-date rules.
 - **Submissions are caught three ways.** Saying "submitted" (or ticking the job on the page) logs it at once. If the person says nothing, the next command checks the application's tab for a confirmation page, and "update history" checks for a confirmation email. A job is only marked applied on a clear sign, never a guess.
@@ -130,7 +131,7 @@ git clone https://github.com/Ari-Da/email_fetcher.git ~/job-agent/email_fetcher
 |---|---|---|
 | `hayhire:setup` | "set up job agent", "update my resume", "back up my job data" | `/hayhire:setup` |
 | `hayhire:search` | "run a job for 15" | `/hayhire:search 15` |
-| `hayhire:apply` | "apply to 1104-02", "submitted" | `/hayhire:apply 1104-02` |
+| `hayhire:apply` | "apply to 1104-02", "printout 1104-02", "submitted" | `/hayhire:apply 1104-02` |
 | `hayhire:cover-letter` | "cover letter for 1104-02" | `/hayhire:cover-letter` |
 | `hayhire:sync` | "update history" | `/hayhire:sync` |
 | `hayhire:pipeline` | "pipeline status", "next" | `/hayhire:pipeline` |
@@ -212,6 +213,7 @@ run a job for 15            # up to 15 new verified jobs, as recent as your setu
 /hayhire:search 20 7        # up to 20 jobs posted in the last 7 days
 job run startup 10          # Y Combinator startups that sponsor visas
 apply to 1104-02            # fill job 1104-02 (salary suggested and explained) and stop before Submit
+printout 1104-02            # save a PDF of the filled form (or: printout Stripe backend)
 submitted                   # record it and add it to the history
 update history              # read Gmail and merge new responses
 pipeline status             # where everything stands

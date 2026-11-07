@@ -130,7 +130,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
 :root { --hist-accent: #74307f; --hist-accent-ink: #ffffff; --hist-soft: #f3e9f5; --hist-line: #d9c2de; --hist-open: #d9f0e1; --hist-open-line: #a9d9bb; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hist-accent: #d3a3dd; --hist-accent-ink: #24102a; --hist-soft: #2e1f33; --hist-line: #4d3654; --hist-open: #1f3a2d; --hist-open-line: #38664e; } }
 :root[data-theme="dark"] { --hist-accent: #d3a3dd; --hist-accent-ink: #24102a; --hist-soft: #2e1f33; --hist-line: #4d3654; --hist-open: #1f3a2d; --hist-open-line: #38664e; }
-.area-switch { max-width: 1040px; margin: 0 auto 16px; display: flex; flex-wrap: wrap; gap: 0 16px; border-bottom: 1px solid var(--line); }
+.area-switch { max-width: 1040px; margin: -20px auto 16px; padding-top: 14px; display: flex; flex-wrap: wrap; gap: 0 16px; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; background: var(--bg); }
 .area-btn { font: inherit; font-size: 13px; font-weight: 500; padding: 4px 2px 6px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--muted); cursor: pointer; margin-bottom: -1px; }
 .area-btn[aria-pressed="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
 #area-btn-history[aria-pressed="true"], #area-btn-outreach[aria-pressed="true"] { color: var(--hist-accent); border-bottom-color: var(--hist-accent); }
@@ -167,9 +167,18 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
 .hist-split i { grid-column: 1 / -1; display: block; height: 8px; background: var(--hist-soft); border-radius: 4px; overflow: hidden; }
 .hist-split i em { display: block; height: 100%; background: var(--hist-accent); border-radius: 4px; }
 .hist-filters { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-bottom: 10px; }
-.hist-chip { font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
-.hist-chip[aria-pressed="true"] { background: var(--hist-accent); color: var(--hist-accent-ink); border-color: var(--hist-accent); }
-.hist-chip:focus-visible, #hist-q:focus-visible { outline: 2px solid var(--hist-accent); outline-offset: 2px; }
+.hist-dd { position: relative; }
+.hist-dd summary { list-style: none; font-size: 13px; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; white-space: nowrap; user-select: none; }
+.hist-dd summary::-webkit-details-marker { display: none; }
+.hist-dd summary::after { content: "\25BE"; margin-left: 6px; color: var(--muted); }
+.hist-dd.on summary { border-color: var(--hist-accent); background: var(--hist-soft); color: var(--hist-accent); font-weight: 600; }
+.hist-dd summary:focus-visible, .hist-clear:focus-visible, #hist-q:focus-visible { outline: 2px solid var(--hist-accent); outline-offset: 2px; }
+.hist-dd-menu { position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; min-width: 200px; max-width: calc(100vw - 32px); display: grid; gap: 2px; padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, .14); }
+.hist-dd-opt { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: 13.5px; cursor: pointer; }
+.hist-dd-opt:hover { background: var(--hist-soft); }
+.hist-dd-opt input { margin: 0; accent-color: var(--hist-accent); }
+.hist-dd-opt small { margin-left: auto; padding-left: 12px; color: var(--muted); font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.hist-clear { font: inherit; font-size: 13px; padding: 4px 6px; border: 0; background: none; color: var(--hist-accent); text-decoration: underline; cursor: pointer; }
 #hist-q { flex: 1 1 200px; min-width: 0; font: inherit; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
 .hist-note { color: var(--muted); font-size: 13px; margin: 0; }
 .hist-scroll { overflow-x: auto; }
@@ -478,7 +487,7 @@ window.SHOW_OUTREACH = {{SHOW_OUTREACH}};
 </script>
 <script>
 (function () {
-  var rows = [], filter = { q: '', status: null, type: null };
+  var rows = [], filter = { q: '', status: [], type: [], days: null };
   var body = document.getElementById('hist-body');
   var STATUS = { applied: ['Applied', ''], rejected: ['Rejected', ' risk'], assessment: ['Assessment', ' warn'], interview: ['Interview', ' ok'], offer: ['Offer', ' ok'], 'no response': ['No response', ''] };
   var TYPE = { 'full-time': 'Full-time', internship: 'Internship', unknown: 'Unknown' };
@@ -505,6 +514,10 @@ window.SHOW_OUTREACH = {{SHOW_OUTREACH}};
       .replace(/\s+(ai|global|technologies|technology|group|holdings|labs)$/, '').replace(/[^a-z0-9]+/g, '');
   }
   function count(list, test) { return list.filter(test).length; }
+  // Applied in the last n days, counting today (local date)
+  function cutoff(n) { var d = new Date(); d.setDate(d.getDate() - (n - 1)); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function withinDays(r, n) { return !!r.appliedDate && r.appliedDate >= cutoff(n); }
+  function typeOf(r) { return TYPE[r.type] ? r.type : 'unknown'; }
   function openLink(r) {
     var url = String(r.emailUrl || ''), old = /^https:\/\/mail\.google\.com\/mail\/u\/([^\/]+)\/#all\/(\w+)$/.exec(url);
     if (old) url = 'https://mail.google.com/mail/?authuser=' + encodeURIComponent(old[1]) + '#all/' + old[2];
@@ -570,8 +583,9 @@ window.SHOW_OUTREACH = {{SHOW_OUTREACH}};
     var ordered = apps.slice().sort(function (a, b) { return (b.appliedDate || b.lastUpdate || '').localeCompare(a.appliedDate || a.lastUpdate || '') || (a.company || '').localeCompare(b.company || '') || a.id.localeCompare(b.id); });
     ordered.forEach(function (r, i) { r.number = i + 1; });
     var shown = ordered.filter(function (r) {
-      if (filter.status && r.status !== filter.status) return false;
-      if (filter.type && r.type !== filter.type) return false;
+      if (filter.days && !withinDays(r, filter.days)) return false;
+      if (filter.status.length && filter.status.indexOf(r.status) < 0) return false;
+      if (filter.type.length && filter.type.indexOf(typeOf(r)) < 0) return false;
       return !q || ((r.company || '') + ' ' + (r.role || '')).toLowerCase().indexOf(q) >= 0;
     });
     if (!shown.length) return h('p', { class: 'hist-note', text: 'Nothing matches. Clear the search or filters.' });
@@ -588,29 +602,61 @@ window.SHOW_OUTREACH = {{SHOW_OUTREACH}};
     return h('div', { class: 'hist-scroll' }, h('table', { class: 'hist-table' },
       h('thead', {}, head), tbody));
   }
-  function chip(label, pressed, onclick) { return h('button', { class: 'hist-chip', type: 'button', 'aria-pressed': String(pressed), onclick: onclick, text: label }); }
+  // A filter dropdown: checkboxes (multi) or radio buttons (one choice). opts: [{ value, text, count }]
+  function dropdown(name, opts, multi, isOn, set, changed) {
+    var dd = h('details', { class: 'hist-dd' }), sum = h('summary', {}), menu = h('div', { class: 'hist-dd-menu', role: 'group', 'aria-label': name });
+    function label() {
+      var on = opts.filter(function (o) { return isOn(o.value); });
+      var active = multi ? on.length > 0 : !!(on[0] && on[0].value != null);
+      sum.textContent = name + ': ' + (multi ? (!on.length ? 'All' : on.length === 1 ? on[0].text : on.length + ' selected') : (on[0] ? on[0].text : 'All'));
+      dd.classList.toggle('on', active);
+    }
+    opts.forEach(function (o) {
+      var input = h('input', { type: multi ? 'checkbox' : 'radio', name: 'hist-dd-' + name });
+      input.checked = isOn(o.value);
+      input.addEventListener('change', function () { set(o.value, input.checked); label(); changed(); });
+      menu.appendChild(h('label', { class: 'hist-dd-opt' }, input, h('span', { text: o.text }), o.count != null ? h('small', { text: String(o.count) }) : null));
+    });
+    dd.addEventListener('toggle', function () {
+      if (dd.open) document.querySelectorAll('.hist-dd[open]').forEach(function (d) { if (d !== dd) d.open = false; });
+    });
+    label();
+    dd.appendChild(sum); dd.appendChild(menu);
+    return dd;
+  }
+  function toggleIn(list, value, on) { var i = list.indexOf(value); if (on && i < 0) list.push(value); if (!on && i >= 0) list.splice(i, 1); }
   function appsPanel(apps) {
-    var result = h('div', {}), chips = h('div', { class: 'hist-filters', role: 'group', 'aria-label': 'Filter applications' });
-    function drawTable() {
-      result.replaceChildren(appTable(apps));
+    var result = h('div', {}), bar = h('div', { class: 'hist-filters', role: 'group', 'aria-label': 'Filter applications' });
+    var clear = h('button', { class: 'hist-clear', type: 'button', text: 'Clear filters' });
+    function active() { return filter.status.length || filter.type.length || filter.days; }
+    function drawTable() { clear.hidden = !active(); result.replaceChildren(appTable(apps)); }
+    function drawFilters() {
+      var statusOpts = Object.keys(STATUS).map(function (s) { return { value: s, text: STATUS[s][0], count: count(apps, function (r) { return r.status === s; }) }; })
+        .filter(function (o) { return o.count || filter.status.indexOf(o.value) >= 0; });
+      var typeOpts = Object.keys(TYPE).map(function (t) { return { value: t, text: TYPE[t], count: count(apps, function (r) { return typeOf(r) === t; }) }; });
+      var dayOpts = [{ value: null, text: 'All time', count: apps.length }].concat([14, 30, 90].map(function (n) { return { value: n, text: 'Last ' + n + ' days', count: count(apps, function (r) { return withinDays(r, n); }) }; }));
+      bar.replaceChildren(
+        dropdown('Status', statusOpts, true, function (v) { return filter.status.indexOf(v) >= 0; }, function (v, on) { toggleIn(filter.status, v, on); }, drawTable),
+        dropdown('Type', typeOpts, true, function (v) { return filter.type.indexOf(v) >= 0; }, function (v, on) { toggleIn(filter.type, v, on); }, drawTable),
+        dropdown('Applied', dayOpts, false, function (v) { return filter.days === v; }, function (v, on) { if (on) filter.days = v; }, drawTable),
+        clear);
     }
-    function drawChips() {
-      chips.replaceChildren();
-      Object.keys(STATUS).forEach(function (s) {
-        var n = count(apps, function (r) { return r.status === s; });
-        if (n) chips.appendChild(chip(STATUS[s][0] + ' ' + n, filter.status === s, function () { filter.status = filter.status === s ? null : s; drawChips(); drawTable(); }));
-      });
-      Object.keys(TYPE).forEach(function (t) {
-        chips.appendChild(chip(TYPE[t], filter.type === t, function () { filter.type = filter.type === t ? null : t; drawChips(); drawTable(); }));
-      });
-    }
+    clear.addEventListener('click', function () { filter.status = []; filter.type = []; filter.days = null; drawFilters(); drawTable(); });
     var search = h('input', { id: 'hist-q', type: 'search', placeholder: 'Search company or role', 'aria-label': 'Search applications' });
     search.value = filter.q;
     search.addEventListener('input', function () { filter.q = search.value; drawTable(); });
-    drawChips(); drawTable();
+    drawFilters(); drawTable();
     return h('div', { class: 'hist-panel' }, h('h3', {}, 'Every application', h('small', { text: 'newest first' })),
-      h('div', { class: 'hist-filters' }, search), chips, result);
+      h('div', { class: 'hist-filters' }, search), bar, result);
   }
+  // Close an open filter dropdown on a click outside it, or with Escape
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('.hist-dd[open]').forEach(function (d) { if (!d.contains(e.target)) d.open = false; });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.hist-dd[open]').forEach(function (d) { d.open = false; d.querySelector('summary').focus(); });
+  });
   function reviewPanel(list) {
     if (!list.length) return null;
     var tbody = h('tbody', {});
