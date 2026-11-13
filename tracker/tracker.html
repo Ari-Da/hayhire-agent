@@ -66,6 +66,11 @@ h1 { font-size: 24px; line-height: 1.2; margin: 0; font-weight: 600; text-wrap: 
 .pill.risk { background: var(--risk-soft); color: var(--risk); font-weight: 600; }
 .pill.warn { background: var(--warn-soft); color: var(--warn); }
 .pill.ok { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.pill.fit { font-family: var(--mono); font-weight: 600; cursor: help; }
+.pill.fit.hi { background: var(--ok-soft); color: var(--ok); }
+.pill.fit.mid { background: var(--warn-soft); color: var(--warn); }
+.pill.fit.lo { background: var(--soft); color: var(--muted); }
+.fitline { color: var(--muted); font-size: 13px; margin-top: 4px; }
 details { margin-top: 8px; font-size: 13.5px; }
 summary { cursor: pointer; color: var(--muted); width: fit-content; }
 dl { margin: 8px 0 0; display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 6px 12px; }
@@ -212,7 +217,9 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
   <div class="controls" id="controls">
     <div class="chips" id="types" role="group" aria-label="Job type"></div>
     <label class="toggle">Sort <select class="select" id="sort" aria-label="Sort jobs">
-      <option value="default">Run order</option><option value="new">Posted: newest first</option><option value="old">Posted: oldest first</option><option value="todo">Not applied first</option><option value="done">Applied first</option></select></label>
+      <option value="default">Run order</option><option value="new">Posted: newest first</option><option value="old">Posted: oldest first</option><option value="fit">Best fit first</option><option value="todo">Not applied first</option><option value="done">Applied first</option></select></label>
+    <label class="toggle">Fit <select class="select" id="minfit" aria-label="Minimum fit">
+      <option value="0">Any</option><option value="50">50%+</option><option value="70">70%+</option><option value="80">80%+</option></select></label>
     <input class="search" id="q" type="search" placeholder="Search number, title, company or location" aria-label="Search jobs">
     <label class="toggle"><input type="checkbox" id="hide"> Hide applied</label>
   </div>
@@ -237,7 +244,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
 
 <script>
 (function () {
-  var state = { view: 'lists', jobs: [], run: null, type: null, sort: 'default', q: '', hide: false, ready: false, canWrite: true, error: null };
+  var state = { view: 'lists', jobs: [], run: null, type: null, sort: 'default', minFit: 0, q: '', hide: false, ready: false, canWrite: true, error: null };
   var db = null, pending = {};
   var $ = function (id) { return document.getElementById(id); };
   function h(tag, attrs) {
@@ -264,6 +271,12 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
   function isRisky(j) { return /^risky/i.test(j.gradReq || ''); }
   function runLabel(r) { return r.replace('_', '/').replace('_', ' · run '); }
 
+  function hasFit(j) { return typeof j.fitScore === 'number' && isFinite(j.fitScore); }
+  var FIT_PARTS = [['skills', 'Skills'], ['level', 'Level'], ['domain', 'Domain'], ['degree', 'Degree'], ['nice', 'Nice-to-haves']];
+  function fitBreakdown(j) {
+    var p = j.fitParts || {};
+    return FIT_PARTS.filter(function (k) { return typeof p[k[0]] === 'number'; }).map(function (k) { return k[1] + ' ' + p[k[0]]; }).join(' · ');
+  }
   function postedKey(j) { var m = /\d{4}-\d{2}-\d{2}/.exec(j.posted || ''); return m ? m[0] : ''; }
   function visible() {
     var q = state.q.trim().toLowerCase();
@@ -272,6 +285,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
       if (state.type === 'full' && !isFull(j)) return false;
       if (state.type === 'intern' && isFull(j)) return false;
       if (state.hide && j.applied) return false;
+      if (state.minFit && !(hasFit(j) && j.fitScore >= state.minFit)) return false;
       if (q && (shortId(j) + ' ' + platform(j).name + ' ' + (j.title || '') + ' ' + (j.company || '') + ' ' + (j.location || '')).toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
@@ -280,6 +294,11 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
         if (state.sort === 'todo' || state.sort === 'done') {
           var d = (a.applied ? 1 : 0) - (b.applied ? 1 : 0);
           return (state.sort === 'todo' ? d : -d) || (a.order || 0) - (b.order || 0);
+        }
+        if (state.sort === 'fit') {
+          if (!hasFit(a) && !hasFit(b)) return (a.order || 0) - (b.order || 0);
+          if (!hasFit(a)) return 1; if (!hasFit(b)) return -1;
+          return (b.fitScore - a.fitScore) || (a.order || 0) - (b.order || 0);
         }
         var x = postedKey(a), y = postedKey(b);
         if (!x && !y) return (a.order || 0) - (b.order || 0);
@@ -327,7 +346,9 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
       h('span', { text: j.company || '' }), h('span', { text: j.location || '' }),
       j.posted ? h('span', { class: 'mono', text: 'Posted ' + j.posted }) : null,
       j.applied && j.appliedAt ? h('span', { class: 'mono', text: 'Applied ' + j.appliedAt }) : null);
+    var fitTip = hasFit(j) ? ['Estimated fit with your profile', fitBreakdown(j), j.fitNotes || ''].filter(Boolean).join('\n') : '';
     var pills = h('div', { class: 'pills' },
+      hasFit(j) ? h('span', { class: 'pill fit ' + (j.fitScore >= 75 ? 'hi' : j.fitScore >= 50 ? 'mid' : 'lo'), title: fitTip, 'aria-label': 'Fit ' + Math.round(j.fitScore) + ' percent. ' + fitBreakdown(j), text: 'Fit ' + Math.round(j.fitScore) + '%' }) : null,
       h('span', { class: 'pill', text: isFull(j) ? 'Full-time' : (j.type || 'Internship').replace('Internship ', 'Intern · ') }),
       j.sponsorship && !/not checked/i.test(j.sponsorship) ? h('span', { class: 'pill' + (/offers/i.test(j.sponsorship) ? ' ok' : ''), text: 'Sponsorship: ' + j.sponsorship }) : null,
       j.olderPosting ? h('span', { class: 'pill warn', title: 'Posted more than 14 days ago but still open. Kept because new-grad roles stay open for months.', text: 'Older posting · still open' }) : null,
@@ -336,12 +357,13 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
       h('span', { class: 'pill plat' + (platform(j).auto ? ' auto' : ''), title: platform(j).auto ? 'Application platform the fill skill supports' : 'Application platform not supported by the fill skill yet', text: 'Apply via ' + platform(j).name }));
     var dl = h('dl', {},
       h('dt', { text: 'Graduation' }), h('dd', { text: j.gradReq || 'Not stated' }),
+      hasFit(j) ? h('dt', { text: 'Fit' }) : null, hasFit(j) ? h('dd', { text: Math.round(j.fitScore) + '% · ' + fitBreakdown(j) }) : null,
       h('dt', { text: 'Notes' }), h('dd', { text: j.notes || '' }),
       h('dt', { text: 'Source' }), h('dd', { text: j.source || '' }),
       h('dt', { text: 'Job ID' }), h('dd', { class: 'mono', text: j.jobId || '' }),
       j.boardUrl ? h('dt', { text: 'Found via' }) : null, j.boardUrl ? h('dd', {}, h('a', { href: j.boardUrl, target: '_blank', rel: 'noopener noreferrer', text: j.boardUrl })) : null);
     var title = h('p', { class: 'title' }, h('span', { class: 'jid', title: 'Job number: tell Claude this to pick the job', text: shortId(j) }), j.url ? h('a', { href: j.url, target: '_blank', rel: 'noopener noreferrer', text: j.title }) : j.title);
-    return h('div', { class: 'row' + (j.applied ? ' done' : ''), id: 'row-' + j.id }, cb, h('div', {}, title, meta, pills, h('details', {}, h('summary', { text: 'Details' }), dl)));
+    return h('div', { class: 'row' + (j.applied ? ' done' : ''), id: 'row-' + j.id }, cb, h('div', {}, title, meta, pills, j.fitNotes ? h('p', { class: 'fitline', text: j.fitNotes }) : null, h('details', {}, h('summary', { text: 'Details' }), dl)));
   }
 
   function renderContent() {
@@ -453,6 +475,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
   try { if (localStorage.getItem('jobs-view') === 'applied') state.view = 'applied'; } catch (e) {}
   $('q').addEventListener('input', function (e) { state.q = e.target.value; renderContent(); });
   $('sort').addEventListener('change', function (e) { state.sort = e.target.value; renderContent(); });
+  $('minfit').addEventListener('change', function (e) { state.minFit = Number(e.target.value) || 0; renderContent(); });
   $('hide').addEventListener('change', function (e) { state.hide = e.target.checked; renderContent(); });
   render();
 

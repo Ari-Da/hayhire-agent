@@ -41,6 +41,21 @@ description: HayHire: Search the web, in the places the user chose at setup, for
 - **Places:** only the places under "Places" in `<PRIVATE_DIR>/notes/job-search.md`, in that priority order. Remote roles count only if the employer hires in a chosen place. If no places are saved, ask the user once (clickable) and save the answer; never assume the US.
 - **Sources per place:** the US-specific sources below (the SimplifyJobs lists, the Y Combinator US filter, `sponsor_companies.csv`) are for US places only. For other places, search LinkedIn (read-only) and the main job boards of that country with the place as the location, and company careers sites and ATS boards (Greenhouse, Ashby, Lever, Workday, Personio, SmartRecruiters) of companies hiring there. Every posting is still verified on the company's own site.
 
+## Fit score
+
+Score how well the candidate fits each job that passes every check, from the posting's full description (already read in step 3) against `<PRIVATE_DIR>/apply/profile.md` (work history, education, skills, projects) and, if the profile is thin, the resume in `<JOBS_DIR>/resume/` named there. It is an estimate for sorting, not a promise.
+
+1. Rate each part from 0 to 100 on its own:
+   - `skills` (weight 40%): required skills, tools and languages the candidate has shown (in jobs or projects), as a share of the required ones. A skill listed only under "skills" with no use anywhere counts half.
+   - `level` (20%): years and seniority asked against the candidate's real experience. 100 when it fits, lower when it asks clearly more, or is far below their level.
+   - `domain` (20%): the role type and field against what the candidate targets (AI/ML first, then general software) and has done.
+   - `degree` (10%): 100 when the candidate's degree meets the requirement, 50 when it only meets "or equivalent experience", 0 when it does not.
+   - `nice` (10%): preferred or "nice to have" qualifications matched. 100 when the posting lists none.
+2. `fitScore` = 0.4 × skills + 0.2 × level + 0.2 × domain + 0.1 × degree + 0.1 × nice, rounded to a whole number.
+3. Judge from what the profile actually shows; never assume a skill. When the description is too short to judge a part, rate that part 50 and say so in `fitNotes`.
+4. `fitNotes`: one line, at most about 140 characters: "Matches: <top 3-4>. Missing: <required ones lacking, or 'nothing required'>." Add the resume version that fits best when the profile lists several ("Use the ML resume.").
+5. For a run for another person, score only if their background is in the private notes; otherwise leave the fit fields out.
+
 ## Targets
 
 **Primary focus: AI/ML roles.** The user mainly wants AI/ML engineering work: AI Engineer, Machine Learning Engineer, Applied AI / Applied ML Engineer, LLM / GenAI Engineer, ML Platform / MLOps Engineer, Research Engineer, Data Scientist or Applied Scientist (when the requirements fit an entry-level or Master's candidate), and Data Engineer roles that feed ML. Search for these first and fill the list with them before general software roles.
@@ -153,7 +168,7 @@ For every candidate listing, follow these steps. Do not skip step 3.
    - Re-read the sponsorship and graduation language on the company's posting (it is the source of truth over the board). Read the FULL page text for the sponsorship sentence: it is often in a footer section below the requirements, and some page-text tools stop before it.
 4. **Expand.** While on each company's careers page, look for other open roles that match the target families and eligibility rules (other new-grad or internship openings, other teams, other US locations). Add those as additional rows with `Source` = "Found via company careers page".
 5. **De-duplicate** within this run by company + title + location + job ID, and drop anything already in an earlier tab of the workbook (see "No repeats across runs").
-6. **Apply the cap.** Keep the best `max_posts` rows: verified-open first, then the priority order in "Targets" (AI/ML before general software), then Tier 0 companies, then roles whose posting explicitly offers sponsorship, then Tier 1 companies, then freshest posting date (within the age window). Respect the full-time/internship mix above.
+6. **Apply the cap.** Score each remaining row (see "Fit score"). Keep the best `max_posts` rows: verified-open first, then the priority order in "Targets" (AI/ML before general software), then higher `fitScore` (a gap of 15 points or more beats the tiers below), then Tier 0 companies, then roles whose posting explicitly offers sponsorship, then Tier 1 companies, then freshest posting date (within the age window). Respect the full-time/internship mix above.
 7. **Write the output** (see below) and give the user a short summary in chat.
 
 ## Output
@@ -162,8 +177,9 @@ Results go to **the tracker page** (formerly Job Posts Tracker): <TRACKER_URL>
 
 - Each run adds one document per job to the artifact's `jobs` collection with the ArtifactData tool (action `batch`, up to 50 writes per call; write each job as a JSON file and pass `file_path`). Never overwrite or delete existing documents, and never change their `applied` / `appliedAt` fields.
 - Document id: `r<MMDD>-<NN>-<company-slug>` (e.g. `r1011-03-stripe`), where MMDD is the run date and NN the row number. For a same-day rerun use `r<MMDD>b-...`.
-- Fields (exact names): `run` (`MM_DD`, e.g. `10_11`; same-day reruns `10_11_2`), `order` (row number, full-time first then internships, by company), `title`, `type`, `company` (add " (Tier N)" if on sponsor_companies.csv), `location`, `posted` (original posting date, YYYY-MM-DD, required), `url` (careers-page link), `boardUrl`, `sponsorship`, `status`, `gradReq`, `verified`, `source`, `notes`, `jobId`, `applied` (false), `appliedAt` (null), and optionally `olderPosting`.
+- Fields (exact names): `run` (`MM_DD`, e.g. `10_11`; same-day reruns `10_11_2`), `order` (row number, full-time first then internships, by company), `title`, `type`, `company` (add " (Tier N)" if on sponsor_companies.csv), `location`, `posted` (original posting date, YYYY-MM-DD, required), `url` (careers-page link), `boardUrl`, `sponsorship`, `status`, `gradReq`, `verified`, `source`, `notes`, `jobId`, `applied` (false), `appliedAt` (null), `fitScore`, `fitParts`, `fitNotes`, and optionally `olderPosting`.
 - `jobId` is required whenever the site has one, because it keeps the dedupe check working even when the URL check cannot: the Greenhouse `gh_jid` / job id, the Ashby posting id, the Workday requisition id, the Microsoft `pid`, the amazon.jobs id (`/jobs/<id>/`), the Uber `/en/jobs/<id>/` number, the IBM `jobId`, the iCIMS req id. Leave it empty only when the posting shows no ID at all, and say so in `notes`.
+- `fitScore` is a whole number 0-100, `fitParts` an object `{skills, level, domain, degree, nice}` of whole numbers 0-100, and `fitNotes` the one-line summary (see "Fit score"). The tracker page shows them as a "Fit N%" pill, the notes under the job, and a "Best fit first" sort and minimum-fit filter.
 - `olderPosting` (optional boolean): `true` when a role is kept even though its original `posted` date is outside `max_age_days`, under the rule for open new-grad titles (University Graduate, New Grad, Early Career, "2027 Graduate", Entry Level, Associate; kept at any age while the company site shows them open). Leave it out otherwise. `posted` still holds the real original date. The tracker page shows it as an "Older posting · still open" pill.
 - `type` is one of `Full-Time Entry Level`, `Internship Summer <INTERN_YEAR>`, `Internship Spring <INTERN_YEAR>`, `Co-op`.
 - `sponsorship` is `Offers sponsorship`, `Unknown` (posting does not say), or `Auth required, no future-sponsorship exclusion` for US roles, and `Not checked (outside US)` elsewhere. Never include US postings that exclude future sponsorship when the user needs it.
@@ -174,7 +190,7 @@ Results go to **the tracker page** (formerly Job Posts Tracker): <TRACKER_URL>
 
 ## Final chat summary
 
-After saving, report: the tracker link, the `max_posts` value used, counts (full-time vs internship, verified vs unverified), the top 5 best-fit roles, any notable risks, and how many were dropped for no-sponsorship language, being closed, or being older than `max_age_days` or having no findable date. Keep it brief.
+After saving, report: the tracker link, the `max_posts` value used, counts (full-time vs internship, verified vs unverified), the top 5 best-fit roles with their fit ("Stripe, ML Engineer, 84%"), any notable risks, and how many were dropped for no-sponsorship language, being closed, or being older than `max_age_days` or having no findable date. Keep it brief.
 
 ## Browser safety: this skill is for THIS computer only
 
