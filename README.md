@@ -130,7 +130,7 @@ git clone https://github.com/Ari-Da/email_fetcher.git ~/job-agent/email_fetcher
 | Skill | Run it by saying | or |
 |---|---|---|
 | `hayhire:setup` | "set up job agent", "update my resume", "back up my job data" | `/hayhire:setup` |
-| `hayhire:search` | "run a job for 15" | `/hayhire:search 15` |
+| `hayhire:search` | "run a job for 15" (no number: 20 jobs), "add company Stripe", "remove company Stripe" | `/hayhire:search 15` |
 | `hayhire:apply` | "apply to 1104-02", "printout 1104-02", "submitted" | `/hayhire:apply 1104-02` |
 | `hayhire:cover-letter` | "cover letter for 1104-02" | `/hayhire:cover-letter` |
 | `hayhire:sync` | "update history" | `/hayhire:sync` |
@@ -209,9 +209,11 @@ It never asks for passwords, ID numbers or bank details, and it never overwrites
 ```text
 set up job agent            # first time: reads your resume, then clickable questions
 update my resume            # swap in or add a resume version
+run a job                   # no number: up to 20 new verified jobs (the default)
 run a job for 15            # up to 15 new verified jobs, as recent as your setup answer (default 14 days)
 /hayhire:search 20 7        # up to 20 jobs posted in the last 7 days
 job run startup 10          # Y Combinator startups that sponsor visas
+add company Stripe          # check this company's careers site on every run (remove / skip company too)
 apply to 1104-02            # fill job 1104-02 (salary suggested and explained) and stop before Submit
 printout 1104-02            # save a PDF of the filled form (or: printout Stripe backend)
 submitted                   # record it and add it to the history
