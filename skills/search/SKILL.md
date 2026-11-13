@@ -41,20 +41,24 @@ description: HayHire: Search the web, in the places the user chose at setup, for
 - **Places:** only the places under "Places" in `<PRIVATE_DIR>/notes/job-search.md`, in that priority order. Remote roles count only if the employer hires in a chosen place. If no places are saved, ask the user once (clickable) and save the answer; never assume the US.
 - **Sources per place:** the US-specific sources below (the SimplifyJobs lists, the Y Combinator US filter, `sponsor_companies.csv`) are for US places only. For other places, search LinkedIn (read-only) and the main job boards of that country with the place as the location, and company careers sites and ATS boards (Greenhouse, Ashby, Lever, Workday, Personio, SmartRecruiters) of companies hiring there. Every posting is still verified on the company's own site.
 
-## Fit score
+## Match score
 
-Score how well the candidate fits each job that passes every check, from the posting's full description (already read in step 3) against `<PRIVATE_DIR>/apply/profile.md` (work history, education, skills, projects) and, if the profile is thin, the resume in `<JOBS_DIR>/resume/` named there. It is an estimate for sorting, not a promise.
+Give every candidate that passes the checks a match score from 0 to 100: the posting's full description (already read in step 3) against `<PRIVATE_DIR>/apply/profile.md`, the resume in `<JOBS_DIR>/resume/` named there, and the user's notes. It is an estimate for ranking, not a promise.
 
-1. Rate each part from 0 to 100 on its own:
-   - `skills` (weight 40%): required skills, tools and languages the candidate has shown (in jobs or projects), as a share of the required ones. A skill listed only under "skills" with no use anywhere counts half.
-   - `level` (20%): years and seniority asked against the candidate's real experience. 100 when it fits, lower when it asks clearly more, or is far below their level.
-   - `domain` (20%): the role type and field against what the candidate targets (AI/ML first, then general software) and has done.
-   - `degree` (10%): 100 when the candidate's degree meets the requirement, 50 when it only meets "or equivalent experience", 0 when it does not.
-   - `nice` (10%): preferred or "nice to have" qualifications matched. 100 when the posting lists none.
-2. `fitScore` = 0.4 × skills + 0.2 × level + 0.2 × domain + 0.1 × degree + 0.1 × nice, rounded to a whole number.
-3. Judge from what the profile actually shows; never assume a skill. When the description is too short to judge a part, rate that part 50 and say so in `fitNotes`.
-4. `fitNotes`: one line, at most about 140 characters: "Matches: <top 3-4>. Missing: <required ones lacking, or 'nothing required'>." Add the resume version that fits best when the profile lists several ("Use the ML resume.").
-5. For a run for another person, score only if their background is in the private notes; otherwise leave the fit fields out.
+| Part (`matchParts` key) | Points | How |
+|---|---|---|
+| Level fit (`level`) | 30 | years asked against the user's real experience; new grad / I / II labels |
+| Required skills (`skills`) | 30 | share of the posting's required skills the user actually has (resume skills only; never assume one) |
+| Role family (`family`) | 15 | the user's role priority order (by default AI/ML > full-stack > frontend > backend) |
+| Degree and graduation (`degree`) | 10 | degree level and graduation-date fit |
+| Location (`location`) | 10 | the user's places, in their order |
+| Sponsorship (`sponsorship`) | 5 | offers = 5, unknown = 2, not needed or outside the US = 5 |
+
+- `matchScore` is the sum, a whole number. `matchParts` holds the points per part (e.g. `{level: 30, skills: 22, family: 15, degree: 10, location: 8, sponsorship: 2}`).
+- `matchNote`: one line, at most about 140 characters, with the main reasons and any gaps: "Matches: Python, PyTorch, LLM apps. Missing: Kubernetes, Go." Add the resume version that fits best when the profile lists several ("Use the ML resume.").
+- When the description is too short to judge a part, give it half its points and say so in `matchNote`.
+- A missing hard requirement (PhD only, security clearance, citizenship, years well above the user's) still excludes the role, as before. The score never overrides that.
+- For a run for another person, score only if their background is in the private notes; otherwise leave the match fields out.
 
 ## Targets
 
@@ -72,10 +76,7 @@ Score how well the candidate fits each job that passes every check, from the pos
 Always search the big companies' own sites, not only job-board lists, because their entry roles often lack "new grad" in the title: Amazon (and Audible, Twitch, Ring, Annapurna Labs; see the Amazon note below), Microsoft, Meta, Google, Apple, NVIDIA, Walmart (Workday site `walmart.wd504.myworkdayjobs.com`, site `WalmartExternal`), Salesforce, Adobe, Oracle, Cisco, Intuit, LinkedIn, Uber, PayPal, plus the AI labs (OpenAI, Anthropic). Query each for AI/ML terms first ("machine learning", "applied scientist", "AI engineer", "LLM", "generative AI"), then for software engineer I/II.
 
 ### Priority order for ranking (and for filling the cap)
-1. AI/ML roles at Tier 0 companies, then at Tier 1 and other companies.
-2. AI/ML roles that are labeled new grad / early career, ahead of level I/II roles with no label.
-3. Software roles at Tier 0 and Tier 1 companies (labeled new grad / early career first, then level I/II).
-4. Everything else that passes the checks.
+The full ranking is in Process step 6 (it includes company cooldown and the match score). Within the role-family step, AI/ML roles come before general software roles, and roles labeled new grad / early career come before level I/II roles with no label.
 Entry-level / new-grad full-time roles are the priority; internships are at most 1 or 2 per run and only when the posting states sponsorship (see Mix). Internship searches also prioritize AI/ML roles.
 
 ## Eligibility rules
@@ -133,13 +134,65 @@ Every run must return only jobs the user has not been shown before.
 
 ## Skip what the user already applied to
 
-Before searching, also read the `email_applications` collection of the tracker page (the application history from email and from the apply skill). Ignore rows with `needsReview: true`. Then skip a candidate when:
+Before searching, read the `email_applications` collection of the tracker page (the application history from email and from the apply skill), ignoring rows with `needsReview: true`, and the `jobs` rows with `applied: true`. Company names are matched the same way everywhere below: ignore "Inc", "LLC", "Corp" and " (Tier N)", and group subsidiaries with the parent (Amazon covers AWS, Audible, Twitch, Ring and Annapurna Labs). Then skip a candidate when:
 
-- the user already applied to it: a row with the same company (ignore "Inc", "LLC", " (Tier N)" and subsidiaries, e.g. "Amazon Web Services" is Amazon) and a similar role, at any date;
+- the user already applied to it: a row with the same company and a similar role, at any date;
 - the user is in an active process there: any row for that company with status `assessment`, `interview` or `offer` skips the whole company;
-- the same or a similar role there rejected the user in the last 90 days.
+- the same role rejected the user (see "Rejections").
 
-A rejection does not skip the rest of the company, since big companies reject often and hire across many teams. Apply this together with "No repeats across runs", before careers-page verification, and report how many were skipped for each reason.
+Apply this together with "No repeats across runs", before careers-page verification, and report how many were skipped for each reason.
+
+### Rejections
+
+- **Same role, rejected:** never list it again (setting `reapply_after_rejection`, default `never`; a number of days lets it back after that long). "Same role" means the same posting (job ID or normalized URL), or a repost: same company, same title, and same team or location.
+- Other roles at that company stay listed, including similar roles on other teams, so the user stays on the company's radar.
+- Rejections never cool a company down or lower its rank, unless the setting `cooldown_counts_rejections` is on (default off). When on, each rejection from the last 90 days adds 0.25 to the company's load.
+
+## Company cooldown
+
+Goal: do not steer the user to the same companies run after run. Companies they applied to recently move down and their slots go to other companies; companies they have not applied to lately move back up. A very strong match is still listed at a recently applied company. Skip this section for a run for another person unless their applications are tracked.
+
+### 1. Recent applications per company (before ranking)
+
+- Merge two sources, then deduplicate: (a) `email_applications` rows (skip `needsReview: true`), dated by `appliedDate`; (b) `jobs` rows with `applied: true`, dated by `appliedAt`. Source (b) is required: some companies (Apple, for example) send no confirmation email the sync can read, so email history alone undercounts.
+- An (a) row and a (b) row are one application when they have the same company, a similar role, and dates within 5 days (the same matching as `hayhire:apply` "submitted" step 3).
+- Only applications count. Rejections, assessments and other status changes add nothing (but see `cooldown_counts_rejections`).
+- **Load** per company: the sum of one weight per application, by its age: 0-14 days 1.0, 15-30 days 0.5, 31-60 days 0.25, older 0 (setting `cooldown_weights`).
+- Also count each company's applications in the last 30 days: written on each of its rows as `recentApps`.
+
+### 2. Levels
+
+- **Cooling** (load ≥ `cooling_threshold`, default 2.0; e.g. 2 or more applications in the last 2 weeks): the company ranks below every company that is not cooling, whatever its tier. Its roles are listed only as strong matches (below), at most `cooling_max_per_run` per run (default 1).
+- **Warm** (load ≥ `warm_threshold`, default 1.0, and below cooling): keeps its tier but ranks after fresh companies of the same tier. The normal per-company cap applies.
+- **Fresh** (load below `warm_threshold`): normal ranking. A Tier 0 company that cooled down returns to the top of its tier once it is fresh again.
+
+### 3. Strong-match exception
+
+At a cooling company, list a role only if its `matchScore` ≥ `strong_match_threshold` (default 80). Set `cooldownOverride: true` on the row and add a note, e.g. "Applied to Apple 3× in the last 30 days; kept as an 86% match."
+
+### 4. Company limits (always win)
+
+If a company publishes its own application limit, skip it entirely while the limit is reached, even for strong matches, and say in the summary when it opens up again. Known limits (users add more in `notes/job-search.md`):
+
+| Company | Limit |
+|---|---|
+| Google | 3 applications per rolling 30 days |
+
+A posting or careers page that says "wait N months before reapplying" is a limit too: skip that company (or that role, if the posting says so) until then.
+
+### 5. Settings
+
+Every value here is a default. The user overrides any of them in `<PRIVATE_DIR>/notes/job-search.md` (a line such as "`strong_match_threshold`: 85"), which wins over this skill.
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `cooldown_weights` | 14d: 1.0, 30d: 0.5, 60d: 0.25 | how much each recent application counts |
+| `cooling_threshold` | 2.0 | load at which a company is cooling |
+| `warm_threshold` | 1.0 | load at which a company is warm |
+| `cooling_max_per_run` | 1 | roles listed per run from a cooling company |
+| `strong_match_threshold` | 80 | match score that overrides cooling |
+| `cooldown_counts_rejections` | off | whether rejections add to the load |
+| `reapply_after_rejection` | never | days before the same rejected role may be listed again |
 
 ## LinkedIn as a discovery source
 
@@ -168,7 +221,16 @@ For every candidate listing, follow these steps. Do not skip step 3.
    - Re-read the sponsorship and graduation language on the company's posting (it is the source of truth over the board). Read the FULL page text for the sponsorship sentence: it is often in a footer section below the requirements, and some page-text tools stop before it.
 4. **Expand.** While on each company's careers page, look for other open roles that match the target families and eligibility rules (other new-grad or internship openings, other teams, other US locations). Add those as additional rows with `Source` = "Found via company careers page".
 5. **De-duplicate** within this run by company + title + location + job ID, and drop anything already in an earlier tab of the workbook (see "No repeats across runs").
-6. **Apply the cap.** Score each remaining row (see "Fit score"). Keep the best `max_posts` rows: verified-open first, then the priority order in "Targets" (AI/ML before general software), then higher `fitScore` (a gap of 15 points or more beats the tiers below), then Tier 0 companies, then roles whose posting explicitly offers sponsorship, then Tier 1 companies, then freshest posting date (within the age window). Respect the full-time/internship mix above.
+6. **Rank and apply the cap.** Score each remaining row (see "Match score") and work out each company's cooldown level (see "Company cooldown"). Drop companies blocked by their own limit, and roles at cooling companies below `strong_match_threshold`. Then rank:
+   1. verified open on the company's site;
+   2. not cooling, or cooling with `cooldownOverride`;
+   3. the user's role-family priority (AI/ML before general software by default);
+   4. tier (0, 1, 2, 3, then not on the list);
+   5. cooldown level: fresh before warm;
+   6. `matchScore`, highest first;
+   7. roles that explicitly offer sponsorship;
+   8. newest posting date (within the age window).
+   The per-company cap (default 2, the Amazon group 1, a cooling company `cooling_max_per_run`), the full-time/internship mix and `max_posts` apply after ranking.
 7. **Write the output** (see below) and give the user a short summary in chat.
 
 ## Output
@@ -177,9 +239,9 @@ Results go to **the tracker page** (formerly Job Posts Tracker): <TRACKER_URL>
 
 - Each run adds one document per job to the artifact's `jobs` collection with the ArtifactData tool (action `batch`, up to 50 writes per call; write each job as a JSON file and pass `file_path`). Never overwrite or delete existing documents, and never change their `applied` / `appliedAt` fields.
 - Document id: `r<MMDD>-<NN>-<company-slug>` (e.g. `r1011-03-stripe`), where MMDD is the run date and NN the row number. For a same-day rerun use `r<MMDD>b-...`.
-- Fields (exact names): `run` (`MM_DD`, e.g. `10_11`; same-day reruns `10_11_2`), `order` (row number, full-time first then internships, by company), `title`, `type`, `company` (add " (Tier N)" if on sponsor_companies.csv), `location`, `posted` (original posting date, YYYY-MM-DD, required), `url` (careers-page link), `boardUrl`, `sponsorship`, `status`, `gradReq`, `verified`, `source`, `notes`, `jobId`, `applied` (false), `appliedAt` (null), `fitScore`, `fitParts`, `fitNotes`, and optionally `olderPosting`.
+- Fields (exact names): `run` (`MM_DD`, e.g. `10_11`; same-day reruns `10_11_2`), `order` (row number, full-time first then internships, by company), `title`, `type`, `company` (add " (Tier N)" if on sponsor_companies.csv), `location`, `posted` (original posting date, YYYY-MM-DD, required), `url` (careers-page link), `boardUrl`, `sponsorship`, `status`, `gradReq`, `verified`, `source`, `notes`, `jobId`, `applied` (false), `appliedAt` (null), `matchScore`, `matchParts`, `matchNote`, `recentApps`, and optionally `cooldownOverride` and `olderPosting`.
 - `jobId` is required whenever the site has one, because it keeps the dedupe check working even when the URL check cannot: the Greenhouse `gh_jid` / job id, the Ashby posting id, the Workday requisition id, the Microsoft `pid`, the amazon.jobs id (`/jobs/<id>/`), the Uber `/en/jobs/<id>/` number, the IBM `jobId`, the iCIMS req id. Leave it empty only when the posting shows no ID at all, and say so in `notes`.
-- `fitScore` is a whole number 0-100, `fitParts` an object `{skills, level, domain, degree, nice}` of whole numbers 0-100, and `fitNotes` the one-line summary (see "Fit score"). The tracker page shows them as a "Fit N%" pill, the notes under the job, and a "Best fit first" sort and minimum-fit filter.
+- `matchScore` (whole number 0-100), `matchParts` (points per part) and `matchNote` (one line): see "Match score". `recentApps`: the company's applications in the last 30 days (0 if none). `cooldownOverride: true` only on a cooling company's strong match (leave it out otherwise). The tracker page shows "NN% match" (or "Strong match NN%"), "Applied N× recently", the note under the job, a "Best match first" sort and a minimum-match filter.
 - `olderPosting` (optional boolean): `true` when a role is kept even though its original `posted` date is outside `max_age_days`, under the rule for open new-grad titles (University Graduate, New Grad, Early Career, "2027 Graduate", Entry Level, Associate; kept at any age while the company site shows them open). Leave it out otherwise. `posted` still holds the real original date. The tracker page shows it as an "Older posting · still open" pill.
 - `type` is one of `Full-Time Entry Level`, `Internship Summer <INTERN_YEAR>`, `Internship Spring <INTERN_YEAR>`, `Co-op`.
 - `sponsorship` is `Offers sponsorship`, `Unknown` (posting does not say), or `Auth required, no future-sponsorship exclusion` for US roles, and `Not checked (outside US)` elsewhere. Never include US postings that exclude future sponsorship when the user needs it.
@@ -190,7 +252,7 @@ Results go to **the tracker page** (formerly Job Posts Tracker): <TRACKER_URL>
 
 ## Final chat summary
 
-After saving, report: the tracker link, the `max_posts` value used, counts (full-time vs internship, verified vs unverified), the top 5 best-fit roles with their fit ("Stripe, ML Engineer, 84%"), any notable risks, and how many were dropped for no-sponsorship language, being closed, or being older than `max_age_days` or having no findable date. Keep it brief.
+After saving, report: the tracker link, the `max_posts` value used, counts (full-time vs internship, verified vs unverified), the top 5 roles with their match ("Stripe, ML Engineer, 84%"), one or two lines on cooldown (cooling companies with their counts and how many roles were held back, e.g. "Cooling: Apple (3 in 30 days), Amazon (3): 4 roles held back, 1 kept as a strong match"; companies fresh again; companies still blocked by their own limit and the date they open up), any notable risks, and how many were dropped for no-sponsorship language, being closed, or being older than `max_age_days` or having no findable date. Keep it brief.
 
 ## Browser safety: this skill is for THIS computer only
 

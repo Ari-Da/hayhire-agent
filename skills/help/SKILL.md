@@ -32,6 +32,8 @@ Say any command in plain words, or type its shortcut.
 | `add company Stripe` | Check this company's careers site on every run (add a link or note if you like: `add company Stripe, NYC only`) | `/hayhire:add-company Stripe` |
 | `remove company Stripe` | Stop checking it every run; `skip company Stripe` leaves it out of every run | |
 
+Every run balances companies by your recent applications: companies you applied to a lot lately move down (a strong match is still listed), and a role that rejected you is not shown again. Each job shows a match score. Change any of these settings in `notes/job-search.md`.
+
 ### Apply
 
 | Command | What it does | Shortcut |
