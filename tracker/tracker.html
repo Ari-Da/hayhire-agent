@@ -330,6 +330,7 @@ table.apps tr.day td { border-top: 2px solid var(--line); }
     var pills = h('div', { class: 'pills' },
       h('span', { class: 'pill', text: isFull(j) ? 'Full-time' : (j.type || 'Internship').replace('Internship ', 'Intern · ') }),
       j.sponsorship && !/not checked/i.test(j.sponsorship) ? h('span', { class: 'pill' + (/offers/i.test(j.sponsorship) ? ' ok' : ''), text: 'Sponsorship: ' + j.sponsorship }) : null,
+      j.olderPosting ? h('span', { class: 'pill warn', title: 'Posted more than 14 days ago but still open. Kept because new-grad roles stay open for months.', text: 'Older posting · still open' }) : null,
       (j.gradFit === 'later') ? h('span', { class: 'pill dec', title: j.gradReq || 'The posting needs a later graduation date than planned. It fits only if the later date happens.', text: 'Fits only with later grad date' }) : (isRisky(j) || j.gradFit === 'unclear') ? h('span', { class: 'pill risk', text: 'Grad date unclear' }) : null,
       j.verified === 'Yes' ? h('span', { class: 'pill', text: 'Verified on company site' }) : h('span', { class: 'pill warn', text: 'Not verified' }),
       h('span', { class: 'pill plat' + (platform(j).auto ? ' auto' : ''), title: platform(j).auto ? 'Application platform the fill skill supports' : 'Application platform not supported by the fill skill yet', text: 'Apply via ' + platform(j).name }));
