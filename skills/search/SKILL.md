@@ -1,6 +1,6 @@
 ---
 name: search
-description: HayHire: Search the web, in the places the user chose at setup, for entry-level full-time jobs (priority) and internships in AI/ML Engineering, Software Engineering, Full-stack, Frontend, and Backend, verify each posting is still open on the company's own careers page, and save the results to the tracker page. When the user says the run is for another person, instead search data engineer / data analyst roles (preferably outside the US, Europe first) and save them to that person's tracker. Use when the user asks to find jobs, internships, or run a job search (for the user by default, or for a second person set up in the private notes), or says "add company <name>", "remove company <name>" or "skip company <name>" to change the companies checked on every run.
+description: HayHire: Search the web, in the places the user chose at setup, for entry-level full-time jobs (priority) and internships in AI/ML Engineering, Software Engineering, Full-stack, Frontend, and Backend, verify each posting is still open on the company's own careers page, and save the results to the tracker page. When the user says the run is for another person, instead search data engineer / data analyst roles (preferably outside the US, Europe first) and save them to that person's tracker. Use when the user asks to find jobs, internships, or run a job search (for the user by default, or for a second person set up in the private notes). To add, remove or skip a company on every run, use `hayhire:add-company`.
 ---
 
 # Job Search
@@ -8,7 +8,7 @@ description: HayHire: Search the web, in the places the user chose at setup, for
 ## Setup (read first)
 
 1. Read `~/.claude/job-agent-private/config.json` (a link to the user's private folder, made by the `hayhire:setup` skill). Every `<NAME>` placeholder in this skill is a value from it (`<TRACKER_URL>`, `<PRIVATE_DIR>`, `<JOBS_DIR>`, ...). If it is missing, HayHire is not set up yet: offer to run `hayhire:setup`.
-2. Read `<PRIVATE_DIR>/notes/job-search.md` if it exists: the user's own rules for this skill. They add to this file and win where they disagree.
+2. Read `<PRIVATE_DIR>/notes/job-search.md` if it exists: the user's own rules for this skill. They add to this file and win where they disagree. On every normal run, also check each company under "Companies checked every run" in that file, and leave out every company under "Companies to skip" (the `hayhire:add-company` skill keeps both lists).
 
 ## Startup run
 
@@ -20,18 +20,6 @@ description: HayHire: Search the web, in the places the user chose at setup, for
 - **Filters:** `visa` = "Will sponsor" (or the description explicitly offers sponsorship). Skip "US citizen/visa only". "US citizenship/visa not required" is ambiguous: include only if few others qualify, with `sponsorship` = `Unknown` and a note. Full-time, `role` eng or science (skip hardware, electrical, mechanical, DevRel), `minExperience` of Any/1+/2+/3+, US location. Max 2 per company.
 - **Window:** posted within **30 days** by default for startup runs (YC sponsoring roles are sparse: on Nov 4, 2026 only 3 qualified within 14 days across ~300 companies). A number the user gives overrides it.
 - **Tracker fields:** ids `r<MMDD>s-<NN>-<company>`, `run` `MM_DD_s`, `url` = the YC job page, `boardUrl` = the directory URL, `source` = "YC startup directory (startup run); verified on YC job page", `jobId` = the YC short id. Notes: YC batch, what the company does, years, pay, and the visa wording.
-
-## Add a company to every run
-
-- **Trigger:** "add company <name>", "add <name> to my search", "check <name> every run" (optionally with a careers link or a note, e.g. "add company Stripe, NYC only"). This is not a job run: do not search for jobs or write to the tracker.
-- **Remove or skip:** "remove company <name>" deletes its entry from the list below; "skip company <name>" adds it under a "Companies to skip" heading in the same file, and every run leaves that company out.
-- Steps:
-  1. Read the "Companies checked every run" section of `<PRIVATE_DIR>/notes/job-search.md` (create the heading at the end of the file if it is missing). If the company is already there, or on `sponsor_companies.csv` at Tier 0, say so and stop; if it is on the CSV at another tier, add it anyway (the CSV tiers are not checked every run).
-  2. Find how to read its openings, cheapest first: a public ATS board (Greenhouse `boards-api.greenhouse.io/v1/boards/<board>/jobs`, Ashby `api.ashbyhq.com/posting-api/job-board/<board>`, Lever `api.lever.co/v0/postings/<board>`, Workday `<host>/wday/cxs/<tenant>/<site>/jobs`), else a JSON API behind its careers site, else the careers page in the browser. Use a link the user gave first. If two companies match the name, ask which one (clickable).
-  3. Fetch the board once to confirm it works, and note: how many postings, which field holds the original posting date, the link format for a job, main locations, and whether postings mention visa sponsorship (only when sponsorship rules apply to this user).
-  4. Append one bullet in the same style as the existing entries: `- **<Company>** (user request, <Mon D, YYYY>; checked every run): what it does, the board and its URL (which date field to use; link format), locations and how to count them against the user's places, the sponsorship wording to record, which role types to list or skip, and any note the user gave.
-  5. Tell the user in two or three lines what was added (board, number of open postings, anything notable such as "all roles senior" or "no US roles right now"), and that the next "run a job" checks it. Do not list its jobs now unless they ask; if they do, run a normal search limited to that company.
-- These are the user's private notes, never the public skill files: never edit `sponsor_companies.csv` or this skill for a user's company request.
 
 ## Input
 

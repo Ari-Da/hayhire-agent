@@ -125,12 +125,13 @@ For email tracking (optional), clone the Gmail side next to it:
 git clone https://github.com/Ari-Da/email_fetcher.git ~/job-agent/email_fetcher
 ```
 
-**Why a plugin.** All seven skills live under one name, `hayhire:`, so they never clash with other skills, for example an older job kit with its own `job-search` or `apply`. Setup also looks for other job skills that could answer the same requests and offers to move them aside (it never deletes them).
+**Why a plugin.** All eight skills live under one name, `hayhire:`, so they never clash with other skills, for example an older job kit with its own `job-search` or `apply`. Setup also looks for other job skills that could answer the same requests and offers to move them aside (it never deletes them).
 
 | Skill | Run it by saying | or |
 |---|---|---|
 | `hayhire:setup` | "set up job agent", "update my resume", "back up my job data" | `/hayhire:setup` |
-| `hayhire:search` | "run a job for 15" (no number: 20 jobs), "add company Stripe", "remove company Stripe" | `/hayhire:search 15` |
+| `hayhire:search` | "run a job for 15" (no number: 20 jobs) | `/hayhire:search 15` |
+| `hayhire:add-company` | "add company Stripe", "remove company Stripe", "skip company Stripe" | `/hayhire:add-company Stripe` |
 | `hayhire:apply` | "apply to 1104-02", "printout 1104-02", "submitted" | `/hayhire:apply 1104-02` |
 | `hayhire:cover-letter` | "cover letter for 1104-02" | `/hayhire:cover-letter` |
 | `hayhire:sync` | "update history" | `/hayhire:sync` |

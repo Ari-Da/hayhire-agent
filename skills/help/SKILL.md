@@ -29,7 +29,7 @@ Say any command in plain words, or type its shortcut.
 | `run a job for 15` | Find up to 15 new, verified jobs | `/hayhire:search 15` |
 | `run a job for 20, last 7 days` | Up to 20 jobs posted in the last 7 days | `/hayhire:search 20 7` |
 | `job run startup 10` | Y Combinator startups (US) that sponsor visas | |
-| `add company Stripe` | Check this company's careers site on every run (add a link or note if you like: `add company Stripe, NYC only`) | |
+| `add company Stripe` | Check this company's careers site on every run (add a link or note if you like: `add company Stripe, NYC only`) | `/hayhire:add-company Stripe` |
 | `remove company Stripe` | Stop checking it every run; `skip company Stripe` leaves it out of every run | |
 
 ### Apply
